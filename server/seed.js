@@ -1,76 +1,80 @@
-const dummyData = {
-    "libraries": [
-      {
-        "name": "Central Library",
-        "address": "123 Main St",
-        "location": {
-          "lat": 40.730610,
-          "long": -73.935242
-        },
-        "books": [
-          {
-            "title": "Book Title 1",
-            "author": "Author 1",
-            "description": "Description 1"
-          },
-          {
-            "title": "Book Title 2",
-            "author": "Author 2",
-            "description": "Description 2"
-          }
-        ], 
-        "users": [
-            {
-              "name": "User 1",
-              "phone": "(123) 456-7890",
-              "email": "user1@example.com",
-              
-            },
-            {
-              "name": "User 2",
-              "phone": "(098) 765-4321",
-              "email": "user2@example.com",
-      
-            }
-          ]
+const dummyData =  {
+  libraries: [
+    {
+      id: 1,
+      name: "Central Library",
+      address: "123 Main St",
+      location: {
+        lat: 40.73061,
+        long: -73.935242,
       },
-      {
-        "name": "Westside Library",
-        "address": "456 Park Ave",
-        "location": {
-          "lat": 40.760805,
-          "long": -73.965302
+      books: [
+        {
+          id: 1,
+          title: "To Kill a Mockingbird",
+          author: "Harper Lee",
+          description: "A novel about the injustices of race and class in the Deep South.",
         },
-        "books": [
-          {
-            "title": "Book Title 3",
-            "author": "Author 3",
-            "description": "Description 3"
-          },
-          {
-            "title": "Book Title 4",
-            "author": "Author 4",
-            "description": "Description 4"
-          }
-        ],
-        "users": [
-            {
-              "name": "User 3",
-              "phone": "(123) 356-7890",
-              "email": "user3@example.com",
-              
-            },
-            {
-              "name": "User 4",
-              "phone": "(098) 365-4321",
-              "email": "user4@example.com",
-      
-            }
-          ]
-      }
-    ],
-    
-  };
+        {
+          id: 2,
+          title: "1984",
+          author: "George Orwell",
+          description: "A dystopian novel about totalitarian regime.",
+        },
+      ],
+
+    },
+    {
+      id: 2,
+      name: "Westside Library",
+      address: "456 Park Ave",
+      location: {
+        lat: 40.760805,
+        long: -73.965302,
+      },
+      books: [
+        {
+          id: 3,
+          title: "The Great Gatsby",
+          author: "F. Scott Fitzgerald",
+          description: "A novel about the decline of the American Dream in the 1920s.",
+        },
+        {
+          id: 4,
+          title: "Moby-Dick",
+          author: "Herman Melville",
+          description: "A seafaring tale of obsession and revenge.",
+        },
+      ],
+
+    },
+    {
+      id: 3,
+      name: "Eastside Library",
+      address: "789 Broad St",
+      location: {
+        lat: 40.704509,
+        long: -73.987504,
+      },
+      books: [
+        {
+          id: 5,
+          title: "Pride and Prejudice",
+          author: "Jane Austen",
+          description: "A romantic novel about manners and marriage in early 19th century England.",
+        },
+        {
+          id: 6,
+          title: "The Catcher in the Rye",
+          author: "J.D. Salinger",
+          description: "A tale of adolescent alienation and loss of innocence.",
+        },
+      ],
+
+    },
+  ],
+};
+
   
 
   async function deleteData(url = '') {

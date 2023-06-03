@@ -8,74 +8,80 @@ Last update: 8 May 2023
 /-->
 
 <html>
- 
-<head>
-	<meta charset="utf-8" />
-	<meta http-equiv="Content-Security-Policy" content="default-src  data: gap: https://ssl.gstatic.com; 
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src  data: gap: https://ssl.gstatic.com; 
 				  style-src  'self' 'unsafe-inline';
 				  script-src 'self' 'unsafe-inline';		
 				  media-src *; 
 				  font-src *;
 				  connect-src *;
-				  img-src 'self' data: content:;" />
-	<meta name="format-detection" content="telephone=yes" />
-	<meta name="msapplication-tap-highlight" content="yes" />
-	<meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover" />
-	<meta name="color-scheme" content="light dark" />
-	<link rel="stylesheet" href="css/jquery.mobile-1.4.5.css" />
-	<script src="js/jQuery.js"></script>
-	<script src="js/jquery.mobile-1.4.5.js"></script>
-	<script src="cordova.js"></script>
-	<script src="js/index.js"></script>
-	<link rel="stylesheet" href="css/index.css" />
-	<title>Little Library</title>
+				  img-src 'self' data: content:;"
+    />
+    <meta name="format-detection" content="telephone=yes" />
+    <meta name="msapplication-tap-highlight" content="yes" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, width=device-width, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="stylesheet" href="css/jquery.mobile-1.4.5.css" />
+    <script src="js/jQuery.js"></script>
+    <script src="js/jquery.mobile-1.4.5.js"></script>
+    <script src="cordova.js"></script>
+    <script src="js/index.js"></script>
+    <link rel="stylesheet" href="css/index.css" />
+    <title>Little Library</title>
   </head>
-  
 
   <body class="body">
-    <!-- Find A Book Page -->
+    <!-- Find Library Page -->
     <div data-role="page" id="find-book-page">
       <div data-role="header" data-position="fixed">
         <h1>Find a Book</h1>
-		<div class="ui-btn-left">
-			<a href="#" data-role="button" data-icon="" id="btnMenu">MENU</a>
-			<ul id="dropDownMenu" data-role="listview" data-theme="a"
-			  style="position: absolute;left: 10px; z-index: 1000; background: #ffffff; border: 1px solid #ccc;">
-			  <li><a href="#local" class="ui-btn" data-role="button">Add Book</a></li>
-			  <li><a href="#local" class="ui-btn" data-role="button"></a></li>
-			</ul>
-			<!-- Upload Confirmation Popup -->
-			<div data-role="popup" id="popupUpload">
-			  <p>Please confirm to upload the ticket data to cloud.</p>
-			  <button class="btnConfirm">Confirm</button>
-			  <button class="btnCancel">Cancel</button>
-			</div>
-		  </div>
+        <div class="ui-btn-left">
+          <a href="#" data-role="button" data-icon="" id="btnMenu">MENU</a>
+          <ul
+            id="dropDownMenu"
+            data-role="listview"
+            data-theme="a"
+            style="
+              position: absolute;
+              left: 10px;
+              z-index: 1000;
+              background: #ffffff;
+              border: 1px solid #ccc;
+            "
+          >
+            <li>
+				<a href="#local" class="ui-btn" data-role="button">Log In</a>
+				<a href="#local" class="ui-btn" data-role="button">Register</a>
+
+			</li>
+          </ul>
+        </div>
       </div>
       <div data-role="main" class="ui-content">
         <h3>Search for a book by title or author</h3>
         <p>Availability of books cannot be guaranteed</p>
-          <input
-            type="search"
-            name="search-1"
-            id="searchInput"
-            value=""
-            placeholder="Search"
-          />
+        <input
+          type="search"
+          name="search-1"
+          id="searchInput"
+          value=""
+          placeholder="Search"
+        />
 
-
-        <div data-role="main" class="ui-content" id="search-result">
-         
-        </div>
+        <div data-role="main" class="ui-content" id="search-result"></div>
       </div>
     </div>
 
+    <!-- Footer -->
     <div data-role="footer" data-position="fixed">
       <h4>ChaPyeBri Group Copy &copy; 2023</h4>
     </div>
-    <!-- /footer -->
-
-
   </body>
   <!-- END -->
 </html>

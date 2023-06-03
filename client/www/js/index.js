@@ -2,113 +2,11 @@
 $(document).ready(function () {
   onDeviceReady();
 });
-var data = {
-  libraries: [
-    {
-      id: 1,
-      name: "Central Library",
-      address: "123 Main St",
-      location: {
-        lat: 40.73061,
-        long: -73.935242,
-      },
-      books: [
-        {
-          id: 1,
-          title: "To Kill a Mockingbird",
-          author: "Harper Lee",
-          description: "A novel about the injustices of race and class in the Deep South.",
-        },
-        {
-          id: 2,
-          title: "1984",
-          author: "George Orwell",
-          description: "A dystopian novel about totalitarian regime.",
-        },
-      ],
-      users: [
-        {
-          id: 1,
-          name: "User 1",
-          phone: "(123) 456-7890",
-          email: "user1@example.com",
-          libraryId: 1,
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "Westside Library",
-      address: "456 Park Ave",
-      location: {
-        lat: 40.760805,
-        long: -73.965302,
-      },
-      books: [
-        {
-          id: 3,
-          title: "The Great Gatsby",
-          author: "F. Scott Fitzgerald",
-          description: "A novel about the decline of the American Dream in the 1920s.",
-        },
-        {
-          id: 4,
-          title: "Moby-Dick",
-          author: "Herman Melville",
-          description: "A seafaring tale of obsession and revenge.",
-        },
-      ],
-      users: [
-        {
-          id: 2,
-          name: "User 2",
-          phone: "(098) 765-4321",
-          email: "user2@example.com",
-          libraryId: 2,
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: "Eastside Library",
-      address: "789 Broad St",
-      location: {
-        lat: 40.704509,
-        long: -73.987504,
-      },
-      books: [
-        {
-          id: 5,
-          title: "Pride and Prejudice",
-          author: "Jane Austen",
-          description: "A romantic novel about manners and marriage in early 19th century England.",
-        },
-        {
-          id: 6,
-          title: "The Catcher in the Rye",
-          author: "J.D. Salinger",
-          description: "A tale of adolescent alienation and loss of innocence.",
-        },
-      ],
-      users: [
-        {
-          id: 3,
-          name: "User 3",
-          phone: "(091) 234-5678",
-          email: "user3@example.com",
-          libraryId: 3,
-        },
-      ],
-    },
-  ],
-};
-function onDeviceReady() {
 
+function onDeviceReady() {
   const baseURL = "http://localhost:3000";
-  const endpoint = baseURL + "/api/tickets";
-  let localData = localStorage.getItem("ticketData")
-    ? JSON.parse(localStorage.getItem("ticketData"))
-    : [];
+  const endpoint = baseURL + "/api/libraries";
+
   const performAjaxCall = (method, data, successCallback, errorCallback) => {
     $.ajax({
       url: endpoint,
@@ -120,6 +18,29 @@ function onDeviceReady() {
       error: errorCallback,
     });
   };
+
+  const fetchAndUpdate = () => {
+    performAjaxCall(
+      "GET",
+      null,
+      function (response) {
+        // Successful API request
+        localStorage.setItem("libraryData", JSON.stringify(response));
+        console.log(response)
+        return response;
+      },
+      function (error) {
+        // Error handling for failed API request
+        console.error("Failed to fetch data: ", error);
+      }
+    );
+  };
+
+  // Init data with local data. If data is none fetchAndUpdate().
+  let libs = localStorage.getItem("libraryData")
+    ? JSON.parse(localStorage.getItem("libraryData"))
+    : fetchAndUpdate();
+
   // Navigation Menu
   $("#dropDownMenu").hide();
   $("#btnMenu")
@@ -133,31 +54,37 @@ function onDeviceReady() {
     }
   });
 
-  // Find Book
-  let libraries = data.libraries 
-  displayTable(libraries)
+  //Search and Display
   $("#searchInput").on("input", function () {
     var searchQuery = $(this).val().toLowerCase();
-    // Search data logic
-    libraries = data.libraries.filter(function (library) {
-      for (let book of library.books) {
-        if (
-          book.title.toLowerCase().includes(searchQuery) ||
-          book.author.toLowerCase().includes(searchQuery)
-        ) {
-          return true;
+    // Change the libs
+    if (!searchQuery){
+      let libsToDisplay = libs.filter(function (lib) {
+        for (let book of lib.books) {
+          if (
+            book.title.toLowerCase().includes(searchQuery) ||
+            book.author.toLowerCase().includes(searchQuery)
+          ) {
+            return true;
+          }
         }
-      }
-      return false;
-    });
-    displayTable(libraries);
+        return false;
+      });
+  
+        displayLibraries(libsToDisplay);
+    }else{
+      displayLibraries(libs)
+    }
+
   });
 
-  function displayTable(results) {
+  function displayLibraries(results) {
     $("#search-result").empty();
-  
+
     if (results.length === 0) {
-      $("#search-result").html('<div><span colspan="3">No results found</span></div>');
+      $("#search-result").html(
+        '<div><span colspan="3">No results found</span></div>'
+      );
     } else {
       var html = "";
       for (var i = 0; i < results.length; i++) {
@@ -169,7 +96,7 @@ function onDeviceReady() {
           results[i].address +
           "</span>";
         html += "</div>";
-  
+
         for (let book of results[i].books) {
           html += "<div>";
           html += "<span>" + book.title + "</span>";
@@ -181,8 +108,4 @@ function onDeviceReady() {
       $("#search-result").html(html);
     }
   }
-  
-
-
-  
 }

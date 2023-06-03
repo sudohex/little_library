@@ -30,18 +30,11 @@ const BookSchema = new mongoose.Schema({
   description: String,
 });
 
-const UserSchema = new mongoose.Schema({
-  name: String,
-  phone: String,
-  email: String,
-});
-
 const LibrarySchema = new mongoose.Schema({
   name: String,
   address: String,
   location: { lat: Number, long: Number },
   books: [BookSchema],
-  users: [UserSchema],
 });
 
 const Library = mongoose.model('Library', LibrarySchema);
@@ -58,23 +51,6 @@ app.post("/api/libraries/:id/books", cors(), async (req, res) => {
     console.error('Error adding new book: ', error);
     res.status(500).send({
       msg: "Error adding new book to MongoDB",
-      error: error.message,
-    });
-  }
-});
-
-// Post a new user in a specific library
-app.post("/api/libraries/:id/users", cors(), async (req, res) => {
-  try {
-    const newUser = req.body;
-    const library = await Library.findById(req.params.id);
-    library.users.push(newUser);
-    await library.save();
-    res.status(200).send(newUser);
-  } catch (error) {
-    console.error('Error creating new user: ', error);
-    res.status(500).send({
-      msg: "Error creating new user in MongoDB",
       error: error.message,
     });
   }
