@@ -1,6 +1,51 @@
-body {
-    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
-    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
-    -webkit-user-select: none;
-    user-select: none;
+/* COIT20269 Assessment 3 - BNE Little Libraries App
+PAGE DESIGN: Search for book 
+Created By: Briana Loughlin 
+Student # 12176923
+Date: 6 june 2023
+Last update: 
+
+Theme colour pallette: 
+Main: DarkTeal #307D95, Charcoal #2E302D
+Highlight: Tangerine orange #EDB153
+Grey background: #eef4f1
+*/
+
+
+
+.body {
+  font-family: system-ui,'Segoe UI', 'Roboto', sans-serif;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-right, 0px);
+}
+
+.ui-page-theme-a .ui-bar-inherit{
+background-color: #307D95;
+text-shadow: none;
+color: white;
+}
+
+.ui-mobile, .ui-page{
+background-color: white;
+}
+
+.app {
+  width:80%; 
+  text-align:center;
+  margin:auto;
+}
+
+.ui-btn.ui-corner-all{
+width: 100%;
+border-style: none;
+background-color: #307D95;
+color: white;
+text-shadow: none;
+}
+
+
+
+/*fonts */
+.h1, .h2, .h3, .p {
+color: #2E302D;
+
 }

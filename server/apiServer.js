@@ -46,34 +46,6 @@ const LibrarySchema = new mongoose.Schema({
 
 const Library = mongoose.model('Library', LibrarySchema);
 
-// Get all books in a specific library
-app.get("/api/libraries/:id/books", cors(), async (req, res) => {
-  try {
-    const library = await Library.findById(req.params.id).lean();
-    res.status(200).send(library.books);
-  } catch (error) {
-    console.error('Error retrieving books: ', error);
-    res.status(500).send({
-      msg: "Error retrieving books from MongoDB",
-      error: error.message,
-    });
-  }
-});
-
-// Get all users in a specific library
-app.get("/api/libraries/:id/users", cors(), async (req, res) => {
-  try {
-    const library = await Library.findById(req.params.id).lean();
-    res.status(200).send(library.users);
-  } catch (error) {
-    console.error('Error retrieving users: ', error);
-    res.status(500).send({
-      msg: "Error retrieving users from MongoDB",
-      error: error.message,
-    });
-  }
-});
-
 // Post a new book in a specific library
 app.post("/api/libraries/:id/books", cors(), async (req, res) => {
   try {
@@ -108,15 +80,16 @@ app.post("/api/libraries/:id/users", cors(), async (req, res) => {
   }
 });
 
-// Get single library
-app.get("/api/libraries/:id", cors(), async (req, res) => {
+// Post a new library
+app.post("/api/libraries", cors(), async (req, res) => {
   try {
-    const library = await Library.findById(req.params.id).lean();
-    res.status(200).send(library);
+    const newLibrary = new Library(req.body);
+    const savedLibrary = await newLibrary.save();
+    res.status(200).send(savedLibrary);
   } catch (error) {
-    console.error('Error retrieving library: ', error);
+    console.error('Error creating new library: ', error);
     res.status(500).send({
-      msg: "Error retrieving library from MongoDB",
+      msg: "Error creating new library in MongoDB",
       error: error.message,
     });
   }
@@ -137,40 +110,6 @@ app.get("/api/libraries", cors(), async (req, res) => {
   }
 });
 
-// Post a new library
-app.post("/api/libraries", cors(), async (req, res) => {
-  try {
-    const newLibrary = new Library(req.body);
-    const savedLibrary = await newLibrary.save();
-    res.status(200).send(savedLibrary);
-  } catch (error) {
-    console.error('Error creating new library: ', error);
-    res.status(500).send({
-      msg: "Error creating new library in MongoDB",
-      error: error.message,
-    });
-  }
-});
-
-// Get libraries containing a specific book
-app.get("/api/search/:bookId", cors(), async (req, res) => {
-  try {
-    const bookId = req.params.bookId;
-    const libraries = await Library.find({ 'books._id': mongoose.Types.ObjectId(bookId) }).lean();
-    if (libraries.length > 0) {
-      res.status(200).send(libraries);
-    } else {
-      res.status(404).send({ msg: "No libraries found containing this book" });
-    }
-  } catch (error) {
-    console.error('Error finding libraries with the book: ', error);
-    res.status(500).send({
-      msg: "Error finding libraries with the book in MongoDB",
-      error: error.message,
-    });
-  }
-});
-
 // DANGER DELETE ALL
 app.delete("/api/libraries", cors(), async (req, res) => {
   try {
@@ -184,7 +123,6 @@ app.delete("/api/libraries", cors(), async (req, res) => {
     });
   }
 });
-
 
 // Run the server
 app.listen(port, () => {
