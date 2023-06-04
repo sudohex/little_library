@@ -40,3 +40,17 @@ text-shadow: none;
 color: #2E302D;
 
 }
+
+.library-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* This will make the image round */
+  object-fit: cover; /* This will make sure the image covers the whole area of the div */
+  display: inline-block; /* This will allow the image to sit next to text or other elements */
+  vertical-align: middle; /* This will vertically align the image with the text */
+  margin-right: 10px; /* This adds some space to the right of the image */
+}
+.library-address{
+  font-weight: 100;
+  color:gray;
+}
