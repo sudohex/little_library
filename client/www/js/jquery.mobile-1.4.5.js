@@ -13944,7 +13944,7 @@ $.widget( "mobile.table", $.mobile.table, {
 
 // TODO rename filterCallback/deprecate and default to the item itself as the first argument
 var defaultFilterCallback = function( index, searchValue ) {
-	return ( ( "" + ( $.mobile.getAttribute( this, "filtertext" ) || $( this ).text() ) )
+	return ( ( "" + ( $.mobile.getAttribute( this, "librarySelect" ) || $( this ).text() ) )
 		.toLowerCase().indexOf( searchValue ) === -1 );
 };
 

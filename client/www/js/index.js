@@ -1,23 +1,56 @@
 document.addEventListener("deviceready", onDeviceReady, false);
+class Auth {
+  static isLoggedIn() {
+    return JSON.parse(localStorage.getItem("loggedIn") || "false");
+  }
+
+  static login() {
+    localStorage.setItem("loggedIn", "true");
+  }
+
+  static logout() {
+    localStorage.setItem("loggedIn", "false");
+  }
+}
 
 class UI {
   static displayLibraries(libs) {
-   let html = "<div>"
-   libs?.map(
+    let html = "<div>";
+    libs?.map(
       (lib) =>
-       html+= `
+        (html += `
+        <a href="#library-details-popup" data-rel="popup" data-library-id="${lib._id}">
           <div style="display:flex; justify-content: space-between;">
             <div>
             <img src="${lib.coverURL}" class="library-icon" style="margin-right: 10px;">
             <span class="library-name">${lib.name}</span>
             </div>
           </div>
-        `
+          </a>
+        `)
     );
-    html+="</div>"
+    html += "</div>";
     $("#library-list").html(html);
+    $(document).on("click", "[data-rel=popup]", function () {
+      const libraryId = $(this).data("library-id");
+      const library = libs.find((lib) => lib._id === libraryId);
+
+      if (library) {
+        $("#library-details-cover").attr("src", library.coverURL);
+        $("#library-details-name").text(library.name);
+        $("#library-details-location").text(library.address);
+
+        // Replace '#' with the navigation URL or action
+        $("#navigate-button").on("click", function (e) {
+          e.preventDefault();
+          let latitude = library.lat;
+          let longitude = library.long;
+          let googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+          window.open(googleMapsURL, "_blank");
+        });
+      }
+    });
   }
-  
 
   static setupMenu() {
     $(".btnMenu")
@@ -47,7 +80,13 @@ class UI {
       $.mobile.changePage("#add-book-page", { transition: "slide" });
     });
     $("#find-book-page").on("swipeleft", function () {
-      $.mobile.changePage("#add-book-page", {
+      $.mobile.changePage("#library-list-page", {
+        transition: "slide",
+        reverse: true,
+      });
+    });
+    $("#add-book-page").on("swipeleft", function () {
+      $.mobile.changePage("#find-book-page", {
         transition: "slide",
         reverse: true,
       });
@@ -123,13 +162,22 @@ class UI {
     });
   }
 
-  static setupAddBookDisplay(libs){
-    let selectOptions = libs?.map(
-      (lib) =>
-        `<option value="${lib?.id}">${lib?.name}</option>`
-    ).join('');
+  static setupAddBookDisplay(libs) {
+    $("#add-book-page").on("pageshow", function () {
+      if (!Auth.isLoggedIn()) {
+        $.mobile.changePage("#login-page")
+      } else {
+        let html =
+          '<select data-native-menu="false" style="width:100%;background-color:white; height:30px;">';
 
-    $("#filtertext").append(selectOptions);
+        libs?.map(
+          (lib) => (html += `<option value="${lib?._id}">${lib?.name}</option>`)
+        );
+
+        html += " </select>";
+        $("#librarySelect").html(html);
+      }
+    });
   }
 }
 

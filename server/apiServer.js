@@ -1,16 +1,29 @@
 const express = require("express");
 const cors = require("cors");
+const bcrypt = require("bcrypt");
+const session = require("express-session");
+
 const bodyParser = require("body-parser");
 const { MongoClient } = require("mongodb");
 
 const app = express();
 const port = "3000";
-
+app.use(
+  session({
+    secret: "Your Secret Key",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 app.use(cors());
 app.use(bodyParser.json());
 
-const uri = "mongodb+srv://dbadmin:W7mCVXhfQmZRxmDV@cluster1.ttrsuqr.mongodb.net/?retryWrites=true&w=majority";
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const uri =
+  "mongodb+srv://dbadmin:W7mCVXhfQmZRxmDV@cluster1.ttrsuqr.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 client.connect((err) => {
   if (err) {
@@ -23,6 +36,41 @@ client.connect((err) => {
 const db = client.db();
 
 const Library = db.collection("libraries");
+const Users = db.collection("users");
+
+// Sign up user
+app.post("/api/signup", async (req, res) => {
+  const { username, password } = req.body;
+
+  // Hash the password
+  const hash = await bcrypt.hash(password, 10);
+
+  // Store in the database
+  await Users.insertOne({ username, password: hash });
+
+  res.status(200).send({ msg: "Signup successful" });
+});
+
+app.post("/api/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  // Find the user
+  const user = await Users.findOne({ username });
+
+  // Validate password
+  if (user && (await bcrypt.compare(password, user.password))) {
+    // Passwords match, log the user in
+    req.session.user = user;
+    res.status(200).send({ msg: "Login successful" });
+  } else {
+    // Passwords don't match
+    res.status(403).send({ msg: "Invalid username or password" });
+  }
+});
+app.post("/api/logout", (req, res) => {
+  req.session.destroy();
+  res.status(200).send({ msg: "Logout successful" });
+});
 
 // Post a new book in a specific library
 app.post("/api/libraries/:id/books", cors(), async (req, res) => {
@@ -30,7 +78,10 @@ app.post("/api/libraries/:id/books", cors(), async (req, res) => {
     const newBook = req.body;
     const library = await Library.findOne({ _id: req.params.id });
     library.books.push(newBook);
-    await Library.updateOne({ _id: req.params.id }, { $set: { books: library.books } });
+    await Library.updateOne(
+      { _id: req.params.id },
+      { $set: { books: library.books } }
+    );
     res.status(200).send(newBook);
   } catch (error) {
     console.error("Error adding new book:", error);
