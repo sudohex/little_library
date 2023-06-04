@@ -1,50 +1,34 @@
 document.addEventListener("deviceready", onDeviceReady, false);
+
+let libs;
+
 class Auth {
   static isLoggedIn() {
     return JSON.parse(localStorage.getItem("loggedIn") || "false");
   }
 
-  static login() {
-    const username = $("#username").val(); // Assuming you have an input with id "username"
-    const password = $("#password").val(); // Assuming you have an input with id "password"
+  static async login() {
+    const username = $("#username").val();
+    const password = $("#password").val();
 
     const loginData = {
       username: username,
       password: password,
     };
 
-    $.ajax({
-      url: Data.baseURL + "/api/login",
-      type: "POST",
-      data: JSON.stringify(loginData),
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      success: function (data, status, xhr) {
-        // Successfully logged in
-        localStorage.setItem("loggedIn", "true");
-        $(".loginBtn").hide();
-        $(".logoutBtn").show();
-        $.mobile.changePage("#library-list-page");
-      },
-      error: function (xhr, status, error) {
-        // There was an error logging in
-        if (xhr.status === 403) {
-          navigator.notification.alert(
-            "Username or password is incorrect",
-            null,
-            "Login Error",
-            "OK"
-          );
-        } else {
-          navigator.notification.alert(
-            "There was an error logging in",
-            null,
-            "Login Error",
-            "OK"
-          );
-        }
-      },
-    });
+    try {
+      const data = await postData(Data.baseURL + "/api/login", loginData);
+      localStorage.setItem("loggedIn", "true");
+      $(".loginBtn").hide();
+      $(".logoutBtn").show();
+      $.mobile.changePage("#library-list-page");
+    } catch (error) {
+      alertErrorMessage(
+        "Login Error",
+        "There was an error logging in",
+        error.status === 403 ? "Username or password is incorrect" : undefined
+      );
+    }
   }
 
   static logout() {
@@ -53,77 +37,14 @@ class Auth {
 }
 
 class UI {
-  static displayLibraries(libs) {
-    let html = "<div>";
-    libs?.map(
-      (lib) =>
-        (html += `
-        <a href="#library-details-popup" data-rel="popup" data-library-id="${lib._id}">
-          <div style="display:flex; justify-content: space-between;">
-            <div>
-            <img src="${lib.coverURL}" class="library-icon" style="margin-right: 10px;">
-            <span class="library-name">${lib.name}</span>
-            </div>
-          </div>
-          </a>
-        `)
-    );
-    html += "</div>";
-    $("#library-list").html(html);
-    $(document).on("click", "[data-rel=popup]", function () {
-      const libraryId = $(this).data("library-id");
-      const library = libs.find((lib) => lib._id === libraryId);
-
-      if (library) {
-        $("#library-details-cover").attr("src", library.coverURL);
-        $("#library-details-name").text(library.name);
-        $("#library-details-location").text(library.address);
-
-        // Replace '#' with the navigation URL or action
-        $("#navigate-button").on("click", function (e) {
-          e.preventDefault();
-          let latitude = library.location.lat;
-          let longitude = library.location.long;
-          let googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
-          window.open(googleMapsURL, "_blank");
-        });
-      }
-    });
+  static async initialize(libs) {
+    UI.displayLibraries(libs);
+    UI.setupMenu();
+    UI.setupLoginDisplay();
+    UI.setupSwipeEvents();
+    UI.setupSearchDisplay(libs);
+    UI.setupAddBookDisplay(libs);
   }
-
-  static setupMenu() {
-      if (Auth.isLoggedIn()) {
-        $(".loginBtn").hide();
-        $(".logoutBtn").show();
-      } else {
-        $(".loginBtn").show();
-        $(".logoutBtn").hide();
-      }
-    $(".logoutBtn").on("click",function(){
-      Auth.logout();
-      $(".loginBtn").show();
-      $(".logoutBtn").hide();
-    })
-    $(".btnMenu")
-      .off("click")
-      .on("click", function () {
-        $(".dropDownMenu").toggle();
-      });
-    $(document).on("click", function (event) {
-      if (!$(event.target).closest(".btnMenu").length) {
-        $(".dropDownMenu").hide();
-      }
-    });
-  }
-  static setupLoginDisplay() {
-    $("#login-page").on("pageshow", function () {
-      $("#loginButton").on("click", function (event) {
-        event.preventDefault();
-        Auth.login();
-      });
-    });
-  }
-
   static setupSwipeEvents() {
     $("#library-list-page").on("swiperight", function () {
       $.mobile.changePage("#find-book-page", { transition: "slide" });
@@ -151,129 +72,193 @@ class UI {
       });
     });
   }
+  static setupMenu() {
+    toggleLoginButtons(Auth.isLoggedIn());
+    $(".logoutBtn").on("click", () => {
+      Auth.logout();
+      toggleLoginButtons(false);
+    });
+    $(".btnMenu")
+      .off("click")
+      .on("click", function () {
+        $(".dropDownMenu").toggle();
+      });
+    $(document).on("click", function (event) {
+      if (!$(event.target).closest(".btnMenu").length) {
+        $(".dropDownMenu").hide();
+      }
+    });
+  }
+
+  static displayLibraries(libs) {
+    let html = libs
+      .map(
+        (lib) =>
+          `<a href="#library-details-popup" data-rel="popup" data-library-id="${lib._id}">
+          <div style="display:flex; justify-content: space-between;">
+            <div>
+              <img src="${lib.coverURL}" class="library-icon" style="margin-right: 10px;">
+              <span class="library-name">${lib.name}</span>
+            </div>
+          </div>
+        </a>`
+      )
+      .join("");
+
+    $("#library-list").html(`<div>${html}</div>`);
+    UI.bindLibraryClickEvents(libs);
+  }
+
+  static setupLoginDisplay() {
+    $("#login-page").on("pageshow", function () {
+      $("#loginButton").on("click", function (event) {
+        event.preventDefault();
+        Auth.login();
+      });
+    });
+  }
 
   static setupSearchDisplay(libs) {
     $("#find-book-page").on("pageshow", function () {
-      $("#searchInput").on("input", function () {
-        var searchQuery = $(this).val().toLowerCase();
-        let libsToDisplay = libs
-          .map(function (lib) {
-            let newLib = { ...lib };
-            newLib.books = newLib.books.filter(function (book) {
-              return (
-                book.title.toLowerCase().includes(searchQuery) ||
-                book.author.toLowerCase().includes(searchQuery)
-              );
-            });
-            return newLib;
-          })
-          .filter(function (lib) {
-            return lib.books.length > 0; // Only return libraries with matching books
-          });
-        if (searchQuery?.length >= 3) displaySearchResult(libsToDisplay);
-        else
-          $("#search-result").html(
-            "<div><span>Type first three characters to start searching...</span></div>"
-          );
-      });
+      $("#searchInput")
+        .off("input")
+        .on("input", function () {
+          const searchQuery = $(this).val().toLowerCase();
+          const libsToDisplay = filterLibrariesByQuery(libs, searchQuery);
+          if (searchQuery?.length >= 3) displaySearchResult(libsToDisplay);
+          else
+            $("#search-result").html(
+              "<div><span>Type first three characters to start searching...</span></div>"
+            );
+        });
+
+      function filterLibrariesByQuery(libs, query) {
+        return libs
+          .map((lib) => ({
+            ...lib,
+            books: lib.books.filter((book) =>
+              [book.title, book.author].some((attr) =>
+                attr.toLowerCase().includes(query)
+              )
+            ),
+          }))
+          .filter((lib) => lib.books.length > 0);
+      }
+
       function displaySearchResult(results) {
         $("#search-result").empty();
         if (results.length === 0) {
           $("#search-result").html("<div><span>No result found</span></div>");
         } else {
-          let html = `<div data-role="collapsibleset" data-theme="a" data-content-theme="a">`;
+          const html = results.reduce(
+            (acc, lib) =>
+              acc +
+              createLibraryCollapsibleHTML(lib.name, lib.coverURL, lib.books),
+            `<div data-role="collapsibleset" data-theme="a" data-content-theme="a">`
+          );
 
-          for (let lib of results) {
-            html += `
-                <div data-role="collapsible">
-                  <h3 >
-                  <div style="display:flex; justify-content: space-between;">
-                  <div>
-                  <img src="${lib.coverURL}" class="library-icon" style="margin-right: 10px;">
-                  <span class="library-name">${lib.name}</span>
-                  </div>
-                  </div>
-                  </h3>
-                  <ul data-role="listview" data-inset="true" data-theme="a" data-divider-theme="a" class="library-books">`;
-
-            for (let book of lib.books) {
-              html += `
-                  <li>
-                    <h4 class="book-title">${book.title}</h4>
-                    <p class="book-author">${book.author}</p>
-                  </li>`;
-            }
-
-            html += `
-                  </ul>
-                </div>`; // end of collapsible
-          }
-
-          html += `</div>`; // end of collapsibleset
-
-          $("#search-result").html(html);
+          $("#search-result").html(`${html}</div>`);
           $("#search-result [data-role=collapsibleset]")
             .collapsibleset()
             .trigger("create");
           $("#search-result [data-role=listview]").listview().trigger("create");
         }
       }
+
+      function createLibraryCollapsibleHTML(name, coverURL, books) {
+        const bookItemsHTML = books.reduce(
+          (acc, book) =>
+            acc +
+            `
+            <li>
+              <h4 class="book-title">${book.title}</h4>
+              <p class="book-author">${book.author}</p>
+            </li>`,
+          ""
+        );
+
+        return `
+          <div data-role="collapsible">
+            <h3 >
+            <div style="display:flex; justify-content: space-between;">
+              <div>
+                <img src="${coverURL}" class="library-icon" style="margin-right: 10px;">
+                <span class="library-name">${name}</span>
+              </div>
+            </div>
+            </h3>
+            <ul data-role="listview" data-inset="true" data-theme="a" data-divider-theme="a" class="library-books">
+              ${bookItemsHTML}
+            </ul>
+          </div>`;
+      }
     });
   }
 
   static setupAddBookDisplay(libs) {
-    $("#add-book-page").on("pageshow", function () {
+    $("#add-book-page").on("pageshow", async function () {
       if (!Auth.isLoggedIn()) {
-        navigator.notification.alert(
-          "Login is required for adding a book",
-          () => $.mobile.changePage("#login-page"),
+        alertErrorMessage(
           "Login Required",
-          "OK"
+          "Login is required for adding a book",
+          () => $.mobile.changePage("#login-page")
         );
       } else {
-        let html =
-          '<select data-native-menu="false" style="width:100%;background-color:white; height:30px;">';
+        let html = libs
+          ?.map((lib) => `<option value="${lib._id}">${lib.name}</option>`)
+          .join("");
 
-        libs?.map(
-          (lib) => (html += `<option value="${lib?._id}">${lib?.name}</option>`)
+        $("#librarySelect").html(
+          `<select data-native-menu="false" style="width:100%;background-color:white; height:30px;">${html}</select>`
         );
 
-        html += " </select>";
-        $("#librarySelect").html(html);
-        $("#newBookForm").on("submit", function (e) {
-          e.preventDefault();
-          const title = $("#text-1").val();
-          const author = $("#text-3").val();
-          const libraryId = $("#librarySelect").find(":selected").val();
+        $("#saveNewBook")
+          .off("click")
+          .on("click", async function (e) {
+            e.preventDefault();
+            const title = $("#text-1").val();
+            const author = $("#text-3").val();
+            const libraryId = $("#librarySelect").find(":selected").val();
 
-          const bookData = {
-            title: title,
-            author: author,
-          };
+            const bookData = {
+              title: title,
+              author: author,
+            };
 
-          $.ajax({
-            url: `${Data.baseURL}/api/libraries/${libraryId}/books`,
-            type: "POST",
-            data: JSON.stringify(bookData),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data, status, xhr) {
-              // Successfully added the book
-              // You can choose to show a success message or redirect the user
-              console.log(data);
+            try {
+              await postData(
+                `${Data.baseURL}/api/libraries/${libraryId}/books`,
+                bookData
+              ).then(async (res) => {
+                await Data.fetchAndUpdate();
+              });
               $.mobile.changePage("#library-list-page");
-            },
-            error: function (xhr, status, error) {
-              // There was an error adding the book
-              navigator.notification.alert(
-                "There was an error adding the book",
-                null,
-                "Error",
-                "OK"
-              );
-            },
+            } catch (error) {
+              alertErrorMessage("Error", "There was an error adding the book");
+            }
           });
-        });
+      }
+    });
+  }
+
+  static bindLibraryClickEvents(libs) {
+    $(document).on("click", "[data-rel=popup]", function () {
+      const libraryId = $(this).data("library-id");
+      const library = libs.find((lib) => lib._id === libraryId);
+
+      if (library) {
+        $("#library-details-cover").attr("src", library.coverURL);
+        $("#library-details-name").text(library.name);
+        $("#library-details-location").text(library.address);
+        let latitude = library.location.lat;
+        let longitude = library.location.long;
+        $("#navigate-button")
+          .off("click")
+          .on("click", function (e) {
+            e.preventDefault();
+            let googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+            window.open(googleMapsURL, "_blank");
+          });
       }
     });
   }
@@ -283,49 +268,66 @@ class Data {
   static baseURL = "http://localhost:3000";
   static endpoint = Data.baseURL + "/api/libraries";
 
-  static performAjaxCall(method, data, successCallback, errorCallback) {
-    $.ajax({
-      url: Data.endpoint,
-      type: method,
-      data: JSON.stringify(data),
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      success: successCallback,
-      error: errorCallback,
-    });
-  }
-
-  static fetchAndUpdate() {
-    return new Promise((resolve, reject) => {
-      Data.performAjaxCall(
-        "GET",
-        null,
-        function (response) {
-          resolve(JSON.parse(JSON.stringify(response)));
-        },
-        function (error) {
-          console.error("Failed to fetch data: ", error);
-          reject([]);
-        }
-      );
-    });
+  static async fetchAndUpdate() {
+    try {
+      libs = await getData(Data.endpoint);
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
-function onDeviceReady() {
-  let libs;
+async function postData(url, data) {
+  try {
+    const response = await $.ajax({
+      url: url,
+      type: "POST",
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+    });
 
-  (async function initialize() {
-    try {
-      libs = await Data.fetchAndUpdate();
-      UI.displayLibraries(libs);
-      UI.setupMenu();
-      UI.setupLoginDisplay();
-      UI.setupSwipeEvents();
-      UI.setupSearchDisplay(libs);
-      UI.setupAddBookDisplay(libs);
-    } catch (error) {
-      alert("Failed to fetch library data: " + JSON.stringify(error));
-    }
-  })();
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getData(url) {
+  try {
+    const response = await $.ajax({
+      url: url,
+      type: "GET",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+    });
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
+function toggleLoginButtons(isLoggedIn) {
+  if (isLoggedIn) {
+    $(".loginBtn").hide();
+    $(".logoutBtn").show();
+  } else {
+    $(".loginBtn").show();
+    $(".logoutBtn").hide();
+  }
+}
+
+function alertErrorMessage(title, defaultMsg, specificMsg) {
+  navigator.notification.alert(specificMsg || defaultMsg, null, title, "OK");
+}
+
+async function onDeviceReady() {
+  try {
+    await Data.fetchAndUpdate();
+    await UI.initialize(libs);
+  } catch (error) {
+    console.log(error);
+    alertErrorMessage("Data Fetch Error", "Failed to fetch library data");
+  }
 }
