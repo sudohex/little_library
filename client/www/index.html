@@ -8,73 +8,233 @@ Last update: 8 May 2023
 /-->
 
 <html>
-
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src  data: gap: https://ssl.gstatic.com; 
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src  data: gap: https://ssl.gstatic.com; 
 				  style-src  'self' 'unsafe-inline';
 				  script-src 'self' 'unsafe-inline';		
 				  media-src *; 
 				  font-src *;
 				  connect-src *;
-				  img-src 'self' data: content:;" />
-  <meta name="format-detection" content="telephone=yes" />
-  <meta name="msapplication-tap-highlight" content="yes" />
-  <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover" />
-  <meta name="color-scheme" content="light dark" />
-  <link rel="stylesheet" href="css/jquery.mobile-1.4.5.css" />
-  <script src="js/jQuery.js"></script>
-  <script src="js/jquery.mobile-1.4.5.js"></script>
-  <script src="cordova.js"></script>
-  <script src="js/index.js"></script>
-  <link rel="stylesheet" href="css/index.css" />
-  <title>Little Library</title>
-</head>
+				  img-src 'self' data: content:;"
+    />
+    <meta name="format-detection" content="telephone=yes" />
+    <meta name="msapplication-tap-highlight" content="yes" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, width=device-width, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="stylesheet" href="css/jquery.mobile-1.4.5.css" />
+    <script src="js/jQuery.js"></script>
+    <script src="js/jquery.mobile-1.4.5.js"></script>
+    <script src="cordova.js"></script>
+    <script src="js/index.js"></script>
+    <link rel="stylesheet" href="css/index.css" />
+    <title>Little Library</title>
+  </head>
 
-<body class="body">
-
-  <!-- Find Book Page -->
-  <div data-role="page" id="find-book-page">
-    <div data-role="header" data-position="fixed">
-
-      <h1>Find a Book</h1>
-      <div class="ui-btn-left">
-        <a href="#" data-role="button" data-icon="bars" data-iconpos="notext" id="btnMenu"></a>
-        <ul id="dropDownMenu" data-role="listview" data-theme="a" style="
+  <body class="body">
+    <!-- Library List Page-->
+    <div data-role="page" id="library-list-page">
+      <div data-role="header" data-position="fixed">
+        <h1>BNE Little Libraries</h1>
+        <div class="ui-btn-left">
+          <a
+            href="#"
+            data-role="button"
+            data-icon="bars"
+            data-iconpos="notext"
+            class="btnMenu"
+          ></a>
+          <ul
+            class="dropDownMenu"
+            data-role="listview"
+            data-theme="a"
+            style="
+              display: none;
               position: absolute;
               left: 10px;
               z-index: 1000;
               background: #ffffff;
               border: 1px solid #ccc;
-            ">
-          <li>
-            <a href="#" class="ui-btn" data-role="button">Log In</a>
-            <a href="#" class="ui-btn" data-role="button">Register</a>
-          </li>
-        </ul>
+            "
+          >
+            <li>
+              <a href="#" class="ui-btn" data-role="button">Log In</a>
+              <a href="#" class="ui-btn" data-role="button">Register</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div data-role="footer" data-position="fixed" id="footer">
+        <div data-role="navbar">
+          <ul data-role="listview">
+            <li><a href="#library-list-page" data-icon="home"></a></li>
+            <li><a href="#my-account-page" data-icon="user"></a></li>
+            <li><a href="#find-book-page" data-icon="search"></a></li>
+            <li><a href="#add-book-page" data-icon="plus"></a></li>
+          </ul>
+        </div>
       </div>
     </div>
-    <div data-role="main" class="ui-content">
-      <h3>Search for a book by title or author</h3>
-      <code>Availability of books cannot be guaranteed</code>
-      <input type="search" name="search-1" id="searchInput" value="" placeholder="Search" />
-
-      <div data-role="section" class="ui-content" id="search-result"></div>
-     
-    </div>
-    <div data-role="footer" data-position="fixed" id="footer">
-      <div data-role="navbar">
-        <ul data-role="listview">
-          <li><a href="#library-list-page" data-icon="home"></a></li>
-          <li><a href="#my-account-page" data-icon="user"></a></li>
-          <li><a href="#find-book-page" data-icon="search"></a></li>
-          <li><a href="#add-book-page" data-icon="plus"></a></li>
-        </ul>
+    <!-- My Account Page-->
+    <div data-role="page" id="my-account-page">
+      <div data-role="header" data-position="fixed">
+        <h1>My Account</h1>
+        <div class="ui-btn-left">
+          <a
+            href="#"
+            data-role="button"
+            data-icon="bars"
+            data-iconpos="notext"
+            class="btnMenu"
+          ></a>
+          <ul
+            class="dropDownMenu"
+            data-role="listview"
+            data-theme="a"
+            style="
+              display: none;
+              position: absolute;
+              left: 10px;
+              z-index: 1000;
+              background: #ffffff;
+              border: 1px solid #ccc;
+            "
+          >
+            <li>
+              <a href="#" class="ui-btn" data-role="button">Log In</a>
+              <a href="#" class="ui-btn" data-role="button">Register</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div data-role="footer" data-position="fixed" id="footer">
+        <div data-role="navbar">
+          <ul data-role="listview">
+            <li><a href="#library-list-page" data-icon="home"></a></li>
+            <li><a href="#my-account-page" data-icon="user"></a></li>
+            <li><a href="#find-book-page" data-icon="search"></a></li>
+            <li><a href="#add-book-page" data-icon="plus"></a></li>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
-  
 
+    <!-- Find Book Page -->
+    <div data-role="page" id="find-book-page">
+      <div data-role="header" data-position="fixed">
+        <h1>Find a Book</h1>
+        <div class="ui-btn-left">
+          <a
+            href="#"
+            data-role="button"
+            data-icon="bars"
+            data-iconpos="notext"
+            class="btnMenu"
+          ></a>
+          <ul
+            class="dropDownMenu"
+            data-role="listview"
+            data-theme="a"
+            style="
+              display: none;
+              position: absolute;
+              left: 10px;
+              z-index: 1000;
+              background: #ffffff;
+              border: 1px solid #ccc;
+            "
+          >
+            <li>
+              <a href="#" class="ui-btn" data-role="button">Log In</a>
+              <a href="#" class="ui-btn" data-role="button">Register</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div data-role="main" class="ui-content">
+        <h3>Search for a book by title or author</h3>
+        <code>Availability of books cannot be guaranteed</code>
+        <input
+          type="search"
+          name="search-1"
+          id="searchInput"
+          value=""
+          placeholder="Search"
+        />
 
-</body>
+        <div data-role="section" class="ui-content" id="search-result"></div>
+      </div>
+      <div data-role="footer" data-position="fixed" id="footer">
+        <div data-role="navbar">
+          <ul data-role="listview">
+            <li><a href="#library-list-page" data-icon="home"></a></li>
+            <li><a href="#my-account-page" data-icon="user"></a></li>
+            <li><a href="#find-book-page" data-icon="search"></a></li>
+            <li><a href="#add-book-page" data-icon="plus"></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add New Book -->
+    <div data-role="page" id="add-book-page">
+      <div data-role="header" data-position="fixed">
+        <h1>Add a Book</h1>
+      </div>
+
+      <div data-rel="dialog" style="padding: 30px">
+        <form id="newBookForm">
+          <label for="text-1">Title:</label>
+          <input type="text" name="text-1" id="text-1" value="" />
+          <label for="text-3">Author (Last Name, First Name):</label>
+          <input
+            type="text"
+            data-clear-btn="true"
+            name="text-3"
+            id="text-3"
+            value=""
+          />
+
+          <div class="ui-field-contain">
+            <label for="filtertext"
+              >Select where the book is being added:</label
+            >
+            <!--PYAE & CHANDNI - i cannot figure out how to format this better!  -->
+            <select
+              id="filtertext"
+              data-native-menu="false"
+              class="filterable-select"
+            >
+              <!-- TODO update this to pull from library database - not fruit! haha!  -->
+
+              <option>Select Library...</option>
+
+              <option value="orange" data-filtertext="Florida">Orange</option>
+
+              <option value="apple">Apple</option>
+
+              <option value="peach">Peach</option>
+
+              <option value="lemon">Lemon</option>
+            </select>
+          </div>
+        </form>
+        <!-- TODO Save New Book button should save book to database and take user back to homepage -->
+        <div>
+          <button
+            id="saveNewBook"
+            class="ui-btn ui-corner-all"
+            data-inline="true"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

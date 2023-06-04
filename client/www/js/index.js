@@ -42,14 +42,14 @@ function onDeviceReady() {
     : fetchAndUpdate();
 
   // Navigation Menu
-  $("#btnMenu")
+  $(".btnMenu")
     .off("click")
     .on("click", function () {
-      $("#dropDownMenu").toggle();
+      $(".dropDownMenu").toggle();
     });
   $(document).on("click", function (event) {
-    if (!$(event.target).closest("#btnMenu").length) {
-      $("#dropDownMenu").hide();
+    if (!$(event.target).closest(".btnMenu").length) {
+      $(".dropDownMenu").hide();
     }
   });
   //List of library
