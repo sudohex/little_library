@@ -40,13 +40,11 @@ const LibrarySchema = new mongoose.Schema({
 
 const Library = mongoose.model('Library', LibrarySchema);
 
-
 app.post('/api/login', cors(), (req, res) => {
   // Here you should implement your real login mechanism.
   // This is just a placeholder that always responds with 200 OK.
   res.status(200).json({msg: 'Successfully logged in'});
 });
-
 
 // Post a new book in a specific library
 app.post("/api/libraries/:id/books", cors(), async (req, res) => {
@@ -60,6 +58,21 @@ app.post("/api/libraries/:id/books", cors(), async (req, res) => {
     console.error('Error adding new book: ', error);
     res.status(500).send({
       msg: "Error adding new book to MongoDB",
+      error: error.message,
+    });
+  }
+});
+
+// Post a new library
+app.post("/api/libraries", cors(), async (req, res) => {
+  try {
+    const newLibrary = new Library(req.body);
+    const savedLibrary = await newLibrary.save();
+    res.status(200).send(savedLibrary);
+  } catch (error) {
+    console.error('Error creating new library: ', error);
+    res.status(500).send({
+      msg: "Error creating new library in MongoDB",
       error: error.message,
     });
   }

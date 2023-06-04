@@ -5,8 +5,8 @@ const dummyData = {
       coverURL: "/img/annerley.jpg",
       address: "450 Ipswich Road, Annerley, QLD, 4103",
       location: {
-        lat: -27.5094,
-        long: 153.03317,
+        lat:40.293490,
+        long: -79.994580,
       },
       books: [
         {
@@ -33,8 +33,8 @@ const dummyData = {
       coverURL: "/img/ashgrove.jpg",
       address: "123 Ashgrove Ave, Ashgrove, QLD, 4060",
       location: {
-        lat: -27.4459,
-        long: 153.0377,
+        lat: 37.318410,
+        long: -93.581760,
       },
       books: [
         {
@@ -62,8 +62,8 @@ const dummyData = {
       coverURL: "/img/banyo.jpg",
       address: "200 Banyo Street, Banyo, QLD, 4014",
       location: {
-        lat: -27.4032,
-        long: 153.1072,
+        lat: 6.750210,
+        long: 11.810850,
       },
       books: [
         {
@@ -85,7 +85,7 @@ const dummyData = {
       coverURL: "/img/bracken-ridge.jpg",
       address: "77 Bracken Street, Bracken Ridge, QLD, 4017",
       location: {
-        lat: -27.3226,
+        lat: -27.327030,
         long: 153.0301,
       },
       books: [
