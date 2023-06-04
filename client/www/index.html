@@ -61,61 +61,24 @@
         </div>
       </div>
       <div data-role="main">
-        <section id="library-list"></section>
+        <section id="library-list" style="max-width: 90%; margin:auto;"></section>
       </div>
-      <div data-role="footer" data-position="fixed" id="footer">
+      <footer data-role="footer" data-position="fixed" id="footer">
         <div data-role="navbar">
           <ul data-role="listview">
-            <li><a href="#library-list-page" data-icon="home"></a></li>
-            <li><a href="#my-account-page" data-icon="user"></a></li>
-            <li><a href="#find-book-page" data-icon="search"></a></li>
-            <li><a href="#add-book-page" data-icon="plus"></a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <!-- My Account Page-->
-    <div data-role="page" id="my-account-page">
-      <div data-role="header" data-position="fixed">
-        <h1>My Account</h1>
-        <div class="ui-btn-left">
-          <a
-            href="#"
-            data-role="button"
-            data-icon="user"
-            data-iconpos="notext"
-            class="btnMenu"
-          ></a>
-          <ul
-            class="dropDownMenu"
-            data-role="listview"
-            data-theme="a"
-            style="
-              display: none;
-              position: absolute;
-              left: 10px;
-              z-index: 1000;
-              background: #ffffff;
-              border: 1px solid #ccc;
-            "
-          >
             <li>
-              <a href="#" class="ui-btn" data-role="button">Log In</a>
-              <a href="#" class="ui-btn" data-role="button">Register</a>
+              <a
+                href="#library-list-page"
+                data-icon="home"
+                style="background-color: aqua"
+              ></a>
             </li>
-          </ul>
-        </div>
-      </div>
-      <div data-role="footer" data-position="fixed" id="footer">
-        <div data-role="navbar">
-          <ul data-role="listview">
-            <li><a href="#library-list-page" data-icon="home"></a></li>
-            <li><a href="#my-account-page" data-icon="user"></a></li>
+            
             <li><a href="#find-book-page" data-icon="search"></a></li>
             <li><a href="#add-book-page" data-icon="plus"></a></li>
           </ul>
         </div>
-      </div>
+      </footer>
     </div>
 
     <!-- Find Book Page -->
@@ -163,16 +126,22 @@
 
         <div data-role="section" class="ui-content" id="search-result"></div>
       </div>
-      <div data-role="footer" data-position="fixed" id="footer">
+      <footer data-role="footer" data-position="fixed" id="footer">
         <div data-role="navbar">
           <ul data-role="listview">
             <li><a href="#library-list-page" data-icon="home"></a></li>
-            <li><a href="#my-account-page" data-icon="user"></a></li>
-            <li><a href="#find-book-page" data-icon="search"></a></li>
+            
+            <li>
+              <a
+                href="#find-book-page"
+                data-icon="search"
+                style="background-color: aqua"
+              ></a>
+            </li>
             <li><a href="#add-book-page" data-icon="plus"></a></li>
           </ul>
         </div>
-      </div>
+      </footer>
     </div>
 
     <!-- Add New Book -->
@@ -181,7 +150,7 @@
         <h1>Add a Book</h1>
       </div>
 
-      <div data-rel="dialog" style="padding: 30px">
+      <div style="padding: 30px">
         <form id="newBookForm">
           <label for="text-1">Title:</label>
           <input type="text" name="text-1" id="text-1" value="" />
@@ -195,25 +164,15 @@
           />
 
           <div class="ui-field-contain">
-            <label for="filtertext" style="display:block;"
+            <label for="filtertext"
               >Select where the book is being added:</label
             >
             <select
-            style="display: block;"
               id="filtertext"
               data-native-menu="false"
-              class="filterable-select"
             >
-
               <option>Select Library...</option>
 
-              <option value="orange" data-filtertext="Florida">Orange</option>
-
-              <option value="apple">Apple</option>
-
-              <option value="peach">Peach</option>
-
-              <option value="lemon">Lemon</option>
             </select>
           </div>
         </form>
@@ -227,6 +186,22 @@
           </button>
         </div>
       </div>
+      <footer data-role="footer" data-position="fixed" id="footer">
+        <div data-role="navbar">
+          <ul data-role="listview">
+            <li><a href="#library-list-page" data-icon="home"></a></li>
+            
+            <li><a href="#find-book-page" data-icon="search"></a></li>
+            <li>
+              <a
+                href="#add-book-page"
+                data-icon="plus"
+                style="background-color: aqua"
+              ></a>
+            </li>
+          </ul>
+        </div>
+      </footer>
     </div>
   </body>
 </html>

@@ -1,54 +1,39 @@
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const mongoose = require('mongoose');
-const app = express();
+const { MongoClient } = require("mongodb");
 
-const port = process.env.SERVER_PORT;
+const app = express();
+const port = "3000";
+
 app.use(cors());
 app.use(bodyParser.json());
 
-mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connection successful'))
-  .catch((err) => console.error('MongoDB connection error: ', err));
+const uri = "mongodb+srv://dbadmin:W7mCVXhfQmZRxmDV@cluster1.ttrsuqr.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-mongoose.connection.on('connected', function () {
-  console.log('Mongoose default connection open to Mongo Atlas');
+client.connect((err) => {
+  if (err) {
+    console.error("MongoDB connection error:", err);
+  } else {
+    console.log("MongoDB connection successful");
+  }
 });
 
-mongoose.connection.on('error', function (err) {
-  console.log('Mongoose default connection error: ' + err);
-});
-mongoose.connection.on('disconnected', function () {
-  console.log('Mongoose default connection disconnected');
-});
+const db = client.db();
 
-const BookSchema = new mongoose.Schema({
-  title: String,
-  author: String,
-  description: String,
-});
-
-const LibrarySchema = new mongoose.Schema({
-  name: String,
-  address: String,
-  location: { lat: Number, long: Number },
-  books: [BookSchema],
-});
-
-const Library = mongoose.model('Library', LibrarySchema);
+const Library = db.collection("libraries");
 
 // Post a new book in a specific library
 app.post("/api/libraries/:id/books", cors(), async (req, res) => {
   try {
     const newBook = req.body;
-    const library = await Library.findById(req.params.id);
+    const library = await Library.findOne({ _id: req.params.id });
     library.books.push(newBook);
-    await library.save();
+    await Library.updateOne({ _id: req.params.id }, { $set: { books: library.books } });
     res.status(200).send(newBook);
   } catch (error) {
-    console.error('Error adding new book: ', error);
+    console.error("Error adding new book:", error);
     res.status(500).send({
       msg: "Error adding new book to MongoDB",
       error: error.message,
@@ -59,11 +44,11 @@ app.post("/api/libraries/:id/books", cors(), async (req, res) => {
 // Post a new library
 app.post("/api/libraries", cors(), async (req, res) => {
   try {
-    const newLibrary = new Library(req.body);
-    const savedLibrary = await newLibrary.save();
-    res.status(200).send(savedLibrary);
+    const newLibrary = req.body;
+    const result = await Library.insertOne(newLibrary);
+    res.status(200).send(result.ops[0]);
   } catch (error) {
-    console.error('Error creating new library: ', error);
+    console.error("Error creating new library:", error);
     res.status(500).send({
       msg: "Error creating new library in MongoDB",
       error: error.message,
@@ -74,11 +59,11 @@ app.post("/api/libraries", cors(), async (req, res) => {
 // Get all libraries
 app.get("/api/libraries", cors(), async (req, res) => {
   try {
-    const libraries = await Library.find().lean();
+    const libraries = await Library.find().toArray();
     console.log(libraries.length, "Libraries Received");
     res.status(200).send(libraries);
   } catch (error) {
-    console.error('Error retrieving libraries: ', error);
+    console.error("Error retrieving libraries:", error);
     res.status(500).send({
       msg: "Error retrieving libraries from MongoDB",
       error: error.message,
@@ -90,9 +75,9 @@ app.get("/api/libraries", cors(), async (req, res) => {
 app.delete("/api/libraries", cors(), async (req, res) => {
   try {
     await Library.deleteMany({});
-    res.status(200).send({msg: "All libraries deleted"});
+    res.status(200).send({ msg: "All libraries deleted" });
   } catch (error) {
-    console.error('Error deleting all libraries: ', error);
+    console.error("Error deleting all libraries:", error);
     res.status(500).send({
       msg: "Error deleting all libraries from MongoDB",
       error: error.message,
@@ -104,4 +89,3 @@ app.delete("/api/libraries", cors(), async (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
-
