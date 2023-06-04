@@ -6,6 +6,7 @@ class Auth {
 
   static login() {
     localStorage.setItem("loggedIn", "true");
+    $.mobile.changePage("#library-list-page");
   }
 
   static logout() {
@@ -43,8 +44,8 @@ class UI {
         // Replace '#' with the navigation URL or action
         $("#navigate-button").on("click", function (e) {
           e.preventDefault();
-          let latitude = library.lat;
-          let longitude = library.long;
+          let latitude = library.location.lat;
+          let longitude = library.location.long;
           let googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
           window.open(googleMapsURL, "_blank");
         });
@@ -62,6 +63,14 @@ class UI {
       if (!$(event.target).closest(".btnMenu").length) {
         $(".dropDownMenu").hide();
       }
+    });
+  }
+  static setupLoginDisplay() {
+    $("#login-page").on("pageshow", function () {
+      $("#loginButton").on("click", function (event) {
+        event.preventDefault();
+        Auth.login();
+      });
     });
   }
 
@@ -165,7 +174,12 @@ class UI {
   static setupAddBookDisplay(libs) {
     $("#add-book-page").on("pageshow", function () {
       if (!Auth.isLoggedIn()) {
-        $.mobile.changePage("#login-page")
+        navigator.notification.alert(
+          "Login is required for adding a book",
+          () => $.mobile.changePage("#login-page"),
+          "Login Required",
+          "OK"
+        );
       } else {
         let html =
           '<select data-native-menu="false" style="width:100%;background-color:white; height:30px;">';
@@ -176,6 +190,39 @@ class UI {
 
         html += " </select>";
         $("#librarySelect").html(html);
+        $("#saveNewBook").on("click", function () {
+          const title = $("#text-1").val();
+          const author = $("#text-3").val();
+          const libraryId = $("#librarySelect").find(":selected").val();
+  
+          const bookData = {
+            title: title,
+            author: author,
+          };
+  
+          $.ajax({
+            url: `${Data.baseURL}/api/libraries/${libraryId}/books`,
+            type: "POST",
+            data: JSON.stringify(bookData),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data, status, xhr) {
+              // Successfully added the book
+              // You can choose to show a success message or redirect the user
+              console.log(data);
+              $.mobile.changePage("#library-list-page");
+            },
+            error: function (xhr, status, error) {
+              // There was an error adding the book
+              navigator.notification.alert(
+                "There was an error adding the book",
+                null,
+                "Error",
+                "OK"
+              );
+            },
+          });
+        });
       }
     });
   }
@@ -203,7 +250,6 @@ class Data {
         "GET",
         null,
         function (response) {
-          localStorage.setItem("libraryData", JSON.stringify(response));
           resolve(JSON.parse(JSON.stringify(response)));
         },
         function (error) {
@@ -223,6 +269,7 @@ function onDeviceReady() {
       libs = await Data.fetchAndUpdate();
       UI.displayLibraries(libs);
       UI.setupMenu();
+      UI.setupLoginDisplay();
       UI.setupSwipeEvents();
       UI.setupSearchDisplay(libs);
       UI.setupAddBookDisplay(libs);

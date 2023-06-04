@@ -13,11 +13,15 @@
   "author": "Apache Cordova Team",
   "license": "Apache-2.0",
   "devDependencies": {
-    "cordova-browser": "^7.0.0"
+    "cordova-browser": "^7.0.0",
+    "cordova-plugin-dialogs": "^2.0.2"
   },
   "cordova": {
     "platforms": [
       "browser"
-    ]
+    ],
+    "plugins": {
+      "cordova-plugin-dialogs": {}
+    }
   }
 }

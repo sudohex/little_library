@@ -60,14 +60,23 @@
           </ul>
         </div>
       </div>
-      <div data-role="main" id="library-list" class="ui-content" >
-        <div data-role="popup" id="library-details-popup" data-theme="a" class="ui-corner-all">
-          <img id="library-details-cover" src="" alt="Library cover image" style="max-width: 80vw;">
+      <div data-role="main" id="library-list" class="ui-content">
+        <div
+          data-role="popup"
+          id="library-details-popup"
+          data-theme="a"
+          class="ui-corner-all"
+        >
+          <img
+            id="library-details-cover"
+            src=""
+            alt="Library cover image"
+            style="max-width: 80vw"
+          />
           <h3 id="library-details-name"></h3>
           <p id="library-details-location"></p>
           <a href="#" id="navigate-button" data-role="button">Navigate</a>
         </div>
-        
       </div>
       <footer data-role="footer" data-position="fixed" id="footer">
         <div data-role="navbar">
@@ -79,7 +88,7 @@
                 style="background-color: aqua"
               ></a>
             </li>
-            
+
             <li><a href="#find-book-page" data-icon="search"></a></li>
             <li><a href="#add-book-page" data-icon="plus"></a></li>
           </ul>
@@ -135,7 +144,7 @@
         <div data-role="navbar">
           <ul data-role="listview">
             <li><a href="#library-list-page" data-icon="home"></a></li>
-            
+
             <li>
               <a
                 href="#find-book-page"
@@ -151,6 +160,7 @@
 
     <!-- Add New Book -->
     <div data-role="page" id="add-book-page">
+
       <div data-role="header" data-position="fixed">
         <h1>Add a Book</h1>
       </div>
@@ -169,30 +179,26 @@
           />
 
           <div class="ui-field-contain">
-            <label >Select where the book is being added:</label
-            >
-
-            <div id="librarySelect">
-           
-            </div>
-             </div>
-             
+            <label>Select where the book is being added:</label>
+            <div id="librarySelect"></div>
+          </div>
         </form>
         <div>
-          <button
-            id="saveNewBook"
+          <a href="#"
+          data-role="button"
+          id="saveNewBook"
             class="ui-btn ui-corner-all"
             data-inline="true"
           >
-            Submit
-          </button>
+            Add New Book
+          </a>
         </div>
       </div>
       <footer data-role="footer" data-position="fixed" id="footer">
         <div data-role="navbar">
           <ul data-role="listview">
             <li><a href="#library-list-page" data-icon="home"></a></li>
-            
+
             <li><a href="#find-book-page" data-icon="search"></a></li>
             <li>
               <a
@@ -217,11 +223,15 @@
           <input type="text" name="username" id="username" value="" />
           <label for="password">Password:</label>
           <input type="password" name="password" id="password" value="" />
-          <button id="loginButton" class="ui-btn ui-corner-all">Login</button>
-          <a href="#library-list-page" id="cancelButton" class="ui-btn ui-corner-all">Cancel</a>
+          <a href="#" data-role="button" id="loginButton" class="ui-btn ui-corner-all">Login</a>
+          <a
+            href="#library-list-page"
+            id="cancelButton"
+            class="ui-btn ui-corner-all"
+            >Cancel</a
+          >
         </form>
       </div>
     </div>
-
   </body>
 </html>
