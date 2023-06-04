@@ -53,9 +53,11 @@
               border: 1px solid #ccc;
             "
           >
-            <li>
-              <a href="#login-page" class="ui-btn">Log In</a>
-              <a href="#" class="ui-btn" data-role="button">Register</a>
+            <li class="menuItem">
+              <a href="#login-page" class="loginBtn ui-btn">Log In</a>
+              <a href="#" data-role="button" class="logoutBtn ui-btn"
+                >Log Out</a
+              >
             </li>
           </ul>
         </div>
@@ -121,8 +123,11 @@
               border: 1px solid #ccc;
             "
           >
-            <li>
-              <a href="#login-page" class="ui-btn">Log In</a>
+            <li class="menuItem">
+              <a href="#login-page" class="loginBtn ui-btn">Log In</a>
+              <a href="#" data-role="button" class="logoutBtn ui-btn"
+                >Log Out</a
+              >
             </li>
           </ul>
         </div>
@@ -160,7 +165,6 @@
 
     <!-- Add New Book -->
     <div data-role="page" id="add-book-page">
-
       <div data-role="header" data-position="fixed">
         <h1>Add a Book</h1>
       </div>
@@ -182,17 +186,19 @@
             <label>Select where the book is being added:</label>
             <div id="librarySelect"></div>
           </div>
+
+          <div>
+            <a
+              href="#"
+              data-role="button"
+              id="saveNewBook"
+              class="ui-btn ui-corner-all"
+              data-inline="true"
+            >
+              Add New Book
+            </a>
+          </div>
         </form>
-        <div>
-          <a href="#"
-          data-role="button"
-          id="saveNewBook"
-            class="ui-btn ui-corner-all"
-            data-inline="true"
-          >
-            Add New Book
-          </a>
-        </div>
       </div>
       <footer data-role="footer" data-position="fixed" id="footer">
         <div data-role="navbar">
@@ -223,7 +229,13 @@
           <input type="text" name="username" id="username" value="" />
           <label for="password">Password:</label>
           <input type="password" name="password" id="password" value="" />
-          <a href="#" data-role="button" id="loginButton" class="ui-btn ui-corner-all">Login</a>
+          <a
+            href="#"
+            data-role="button"
+            id="loginButton"
+            class="ui-btn ui-corner-all"
+            >Login</a
+          >
           <a
             href="#library-list-page"
             id="cancelButton"

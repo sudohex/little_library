@@ -1,107 +1,65 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const bcrypt = require("bcrypt");
-const session = require("express-session");
-
 const bodyParser = require("body-parser");
-const { MongoClient } = require("mongodb");
-
+const mongoose = require('mongoose');
 const app = express();
+
 const port = "3000";
-app.use(
-  session({
-    secret: "Your Secret Key",
-    resave: false,
-    saveUninitialized: false,
-  })
-);
 app.use(cors());
 app.use(bodyParser.json());
 
-const uri =
-  "mongodb+srv://dbadmin:W7mCVXhfQmZRxmDV@cluster1.ttrsuqr.mongodb.net/?retryWrites=true&w=majority";
-const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose.connect("mongodb+srv://dbadmin:W7mCVXhfQmZRxmDV@cluster1.ttrsuqr.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connection successful'))
+  .catch((err) => console.error('MongoDB connection error: ', err));
+
+mongoose.connection.on('connected', function () {
+  console.log('Mongoose default connection open to Mongo Atlas');
 });
 
-client.connect((err) => {
-  if (err) {
-    console.error("MongoDB connection error:", err);
-  } else {
-    console.log("MongoDB connection successful");
-  }
+mongoose.connection.on('error', function (err) {
+  console.log('Mongoose default connection error: ' + err);
+});
+mongoose.connection.on('disconnected', function () {
+  console.log('Mongoose default connection disconnected');
 });
 
-const db = client.db();
-
-const Library = db.collection("libraries");
-const Users = db.collection("users");
-
-// Sign up user
-app.post("/api/signup", async (req, res) => {
-  const { username, password } = req.body;
-
-  // Hash the password
-  const hash = await bcrypt.hash(password, 10);
-
-  // Store in the database
-  await Users.insertOne({ username, password: hash });
-
-  res.status(200).send({ msg: "Signup successful" });
+const BookSchema = new mongoose.Schema({
+  title: String,
+  author: String,
+  description: String,
 });
 
-app.post("/api/login", async (req, res) => {
-  const { username, password } = req.body;
-
-  // Find the user
-  const user = await Users.findOne({ username });
-
-  // Validate password
-  if (user && (await bcrypt.compare(password, user.password))) {
-    // Passwords match, log the user in
-    req.session.user = user;
-    res.status(200).send({ msg: "Login successful" });
-  } else {
-    // Passwords don't match
-    res.status(403).send({ msg: "Invalid username or password" });
-  }
+const LibrarySchema = new mongoose.Schema({
+  coverURL: String,
+  name: String,
+  address: String,
+  location: { lat: Number, long: Number },
+  books: [BookSchema],
 });
-app.post("/api/logout", (req, res) => {
-  req.session.destroy();
-  res.status(200).send({ msg: "Logout successful" });
+
+const Library = mongoose.model('Library', LibrarySchema);
+
+
+app.post('/api/login', cors(), (req, res) => {
+  // Here you should implement your real login mechanism.
+  // This is just a placeholder that always responds with 200 OK.
+  res.status(200).json({msg: 'Successfully logged in'});
 });
+
 
 // Post a new book in a specific library
 app.post("/api/libraries/:id/books", cors(), async (req, res) => {
   try {
     const newBook = req.body;
-    const library = await Library.findOne({ _id: req.params.id });
+    const library = await Library.findById(req.params.id);
     library.books.push(newBook);
-    await Library.updateOne(
-      { _id: req.params.id },
-      { $set: { books: library.books } }
-    );
+    await library.save();
     res.status(200).send(newBook);
   } catch (error) {
-    console.error("Error adding new book:", error);
+    console.error('Error adding new book: ', error);
     res.status(500).send({
       msg: "Error adding new book to MongoDB",
-      error: error.message,
-    });
-  }
-});
-
-// Post a new library
-app.post("/api/libraries", cors(), async (req, res) => {
-  try {
-    const newLibrary = req.body;
-    const result = await Library.insertOne(newLibrary);
-    res.status(200).send(result.ops[0]);
-  } catch (error) {
-    console.error("Error creating new library:", error);
-    res.status(500).send({
-      msg: "Error creating new library in MongoDB",
       error: error.message,
     });
   }
@@ -110,11 +68,11 @@ app.post("/api/libraries", cors(), async (req, res) => {
 // Get all libraries
 app.get("/api/libraries", cors(), async (req, res) => {
   try {
-    const libraries = await Library.find().toArray();
+    const libraries = await Library.find().lean();
     console.log(libraries.length, "Libraries Received");
     res.status(200).send(libraries);
   } catch (error) {
-    console.error("Error retrieving libraries:", error);
+    console.error('Error retrieving libraries: ', error);
     res.status(500).send({
       msg: "Error retrieving libraries from MongoDB",
       error: error.message,
@@ -126,9 +84,9 @@ app.get("/api/libraries", cors(), async (req, res) => {
 app.delete("/api/libraries", cors(), async (req, res) => {
   try {
     await Library.deleteMany({});
-    res.status(200).send({ msg: "All libraries deleted" });
+    res.status(200).send({msg: "All libraries deleted"});
   } catch (error) {
-    console.error("Error deleting all libraries:", error);
+    console.error('Error deleting all libraries: ', error);
     res.status(500).send({
       msg: "Error deleting all libraries from MongoDB",
       error: error.message,
@@ -140,3 +98,4 @@ app.delete("/api/libraries", cors(), async (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
+

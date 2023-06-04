@@ -5,8 +5,46 @@ class Auth {
   }
 
   static login() {
-    localStorage.setItem("loggedIn", "true");
-    $.mobile.changePage("#library-list-page");
+    const username = $("#username").val(); // Assuming you have an input with id "username"
+    const password = $("#password").val(); // Assuming you have an input with id "password"
+
+    const loginData = {
+      username: username,
+      password: password,
+    };
+
+    $.ajax({
+      url: Data.baseURL + "/api/login",
+      type: "POST",
+      data: JSON.stringify(loginData),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function (data, status, xhr) {
+        // Successfully logged in
+        localStorage.setItem("loggedIn", "true");
+        $(".loginBtn").hide();
+        $(".logoutBtn").show();
+        $.mobile.changePage("#library-list-page");
+      },
+      error: function (xhr, status, error) {
+        // There was an error logging in
+        if (xhr.status === 403) {
+          navigator.notification.alert(
+            "Username or password is incorrect",
+            null,
+            "Login Error",
+            "OK"
+          );
+        } else {
+          navigator.notification.alert(
+            "There was an error logging in",
+            null,
+            "Login Error",
+            "OK"
+          );
+        }
+      },
+    });
   }
 
   static logout() {
@@ -54,6 +92,18 @@ class UI {
   }
 
   static setupMenu() {
+      if (Auth.isLoggedIn()) {
+        $(".loginBtn").hide();
+        $(".logoutBtn").show();
+      } else {
+        $(".loginBtn").show();
+        $(".logoutBtn").hide();
+      }
+    $(".logoutBtn").on("click",function(){
+      Auth.logout();
+      $(".loginBtn").show();
+      $(".logoutBtn").hide();
+    })
     $(".btnMenu")
       .off("click")
       .on("click", function () {
@@ -190,16 +240,17 @@ class UI {
 
         html += " </select>";
         $("#librarySelect").html(html);
-        $("#saveNewBook").on("click", function () {
+        $("#newBookForm").on("submit", function (e) {
+          e.preventDefault();
           const title = $("#text-1").val();
           const author = $("#text-3").val();
           const libraryId = $("#librarySelect").find(":selected").val();
-  
+
           const bookData = {
             title: title,
             author: author,
           };
-  
+
           $.ajax({
             url: `${Data.baseURL}/api/libraries/${libraryId}/books`,
             type: "POST",
