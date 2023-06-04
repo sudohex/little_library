@@ -3,39 +3,41 @@ $(document).ready(function () {
   onDeviceReady();
 });
 
-const baseURL = "http://localhost:3000";
-const endpoint = baseURL + "/api/libraries";
-
-const performAjaxCall = (method, data, successCallback, errorCallback) => {
-  $.ajax({
-    url: endpoint,
-    type: method,
-    data: JSON.stringify(data),
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: successCallback,
-    error: errorCallback,
-  });
-};
-
-const fetchAndUpdate = () => {
-  performAjaxCall(
-    "GET",
-    null,
-    function (response) {
-      // Successful API request
-      localStorage.setItem("libraryData", JSON.stringify(response));
-      return response;
-    },
-    function (error) {
-      // Error handling for failed API request
-      console.error("Failed to fetch data: ", error);
-      return [];
-    }
-  );
-};
-
 function onDeviceReady() {
+  const baseURL = "http://localhost:3000";
+  const endpoint = baseURL + "/api/libraries";
+
+  const performAjaxCall = (method, data, successCallback, errorCallback) => {
+    $.ajax({
+      url: endpoint,
+      type: method,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: successCallback,
+      error: errorCallback,
+    });
+  };
+
+  const fetchAndUpdate = () => {
+    return new Promise((resolve, reject) => {
+      performAjaxCall(
+        "GET",
+        null,
+        function(response) {
+          // Successful API request
+          localStorage.setItem("libraryData", JSON.stringify(response));
+          resolve(response);
+        },
+        function(error) {
+          // Error handling for failed API request
+          console.error("Failed to fetch data: ", error);
+          reject([]);
+        }
+      );
+    });
+  };
+  
   // Init data with local data. If data is none fetchAndUpdate().
   let libs = localStorage.getItem("libraryData")
     ? JSON.parse(localStorage.getItem("libraryData"))
@@ -52,34 +54,87 @@ function onDeviceReady() {
       $(".dropDownMenu").hide();
     }
   });
+
   //List of library
-  $("#library-list-page").on("show",function(){
-    displayLibraries(libs)
-  })
+  $("#library-list-page").on("pageshow", function() {
 
-  //Search and Display
-  $("#searchInput").on("input", function () {
-    var searchQuery = $(this).val().toLowerCase();
-    // Change the libs
+      displayLibraries(libs);
 
-    let libsToDisplay = libs.filter(function (lib) {
-      for (let book of lib.books) {
-        if (
-          book.title.toLowerCase().includes(searchQuery) ||
-          book.author.toLowerCase().includes(searchQuery)
-        ) {
-          return true;
-        }
-      }
-      return false;
-    });
-
-    displayLibraries(libsToDisplay);
   });
+  function displayLibraries(data) {
+    var libraryList = $("#library-list");
 
-  function displayLibraries(results) {
+    // Clear the list
+    libraryList.empty();
+
+    data.forEach(function (lib) {
+      // Create a container for each library
+      var libContainer = $("<div/>", {
+        class: "lib-card",
+      });
+
+      // Create and add the image
+      var libImage = $("<img/>", {
+        src: "path/to/your/image.png",
+        class: "lib-image",
+      });
+      libContainer.append(libImage);
+
+      // Create and add the library name and address
+      var libInfo = $("<div/>", {
+        class: "lib-info",
+      });
+      var libName = $("<h2/>", {
+        text: lib.name,
+        class: "lib-name",
+      });
+      var libAddress = $("<p/>", {
+        text: lib.address,
+        class: "lib-address",
+      });
+      libInfo.append(libName, libAddress);
+      libContainer.append(libInfo);
+
+      // Create and add the navigation button
+      var navigateButton = $("<a/>", {
+        href: `https://www.google.com/maps/?q=${lib.location.lat},${lib.location.long}`,
+        text: "Navigate",
+        class: "navigate-button",
+        target: "_blank",
+      });
+      libContainer.append(navigateButton);
+
+      // Add the library container to the list
+      libraryList.append(libContainer);
+    });
+  }
+  //Search and Display
+  $("#find-book-page").on("pageshow", function() {
+
+ 
+   $("#searchInput").on("input", function() {
+    var searchQuery = $(this).val().toLowerCase();
+    
+    fetchAndUpdate().then(function(newLibs) {
+      libs = newLibs;
+      let libsToDisplay = libs.filter(function(lib) {
+        for (let book of lib.books) {
+          if (
+            book.title.toLowerCase().includes(searchQuery) ||
+            book.author.toLowerCase().includes(searchQuery)
+          ) {
+            return true;
+          }
+        }
+        return false;
+      });
+  
+      displaySearchResult(libsToDisplay);
+    });
+  });
+  function displaySearchResult(results) {
     $("#search-result").empty();
-
+    console.log("SEARCH RESULT",results)
     if (results.length === 0) {
       $("#search-result").html("<div><span>No results found</span></div>");
     } else {
@@ -115,4 +170,7 @@ function onDeviceReady() {
       $("#search-result [data-role=listview]").listview().trigger("create");
     }
   }
+
+});
+
 }
