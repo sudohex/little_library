@@ -58,3 +58,52 @@ color: #2E302D;
   height: 400px;
   width: 100%;
 }
+.dropDownMenu {
+  display: none;
+  position: absolute;
+  left: 10px;
+  z-index: 1000;
+  background: #ffffff;
+  border: 1px solid #ccc;
+}
+
+#library-list {
+  max-height: 50vh;
+  overflow: auto;
+}
+
+#library-details-popup {
+  position: fixed;
+  width: 80vw;
+  max-width: 300px;
+  height: 60vh;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+#library-details-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#library-details {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+#close-popup {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.footer a {
+  background-color: #edb153;
+}
+

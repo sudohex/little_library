@@ -1,6 +1,8 @@
 document.addEventListener("deviceready", onDeviceReady, false);
 
 let libs;
+let baseURL = "https://nodeserver-cqu-little-library.onrender.com";
+let endpoint = baseURL + "/api/libraries";
 async function onDeviceReady() {
   try {
     await Data.fetchAndUpdate();
@@ -26,7 +28,7 @@ class Auth {
     };
 
     try {
-      const data = await postData(Data.baseURL + "/api/login", loginData);
+      const data = await postData(baseURL + "/api/login", loginData);
       localStorage.setItem("loggedIn", "true");
       $(".loginBtn").hide();
       $(".logoutBtn").show();
@@ -102,12 +104,10 @@ class UI {
     let html = libs
       .map(
         (lib) =>
-          `<a href="#library-details-popup" data-rel="popup" data-library-id="${lib._id}">
-          <div style="display:flex; justify-content: space-between;">
-            <div>
-              <img src="${lib.coverURL}" class="library-icon" style="margin:auto;">
-              <span class="library-name">${lib.name}</span>
-            </div>
+          `<a href="#library-details-popup" data-rel="popup" data-library-id="${lib._id}" class="ui-btn ui-corner-all ui-shadow ui-btn-a">
+          <div style="display:flex; align-items: center;">
+            <img src="${lib.coverURL}" class="library-icon" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+            <span class="library-name" style="font-size: 1.2em;">${lib.name}</span>
           </div>
         </a>`
       )
@@ -120,7 +120,7 @@ class UI {
     const popupElements = {
       cover: $("#library-details-cover"),
       name: $("#library-details-name"),
-      location: $("#library-details-location"),
+      location: $("#library-details-address"),
       navigateButton: $("#navigate-button"),
       closeButton: $("#close-popup"),
       popup: $("#library-details-popup"),
@@ -280,10 +280,10 @@ class UI {
 
             try {
               await postData(
-                `${Data.baseURL}/api/libraries/${libraryId}/books`,
+                `${baseURL}/api/libraries/${libraryId}/books`,
                 bookData
               ).then(async (res) => {
-                await Data.fetchAndUpdate();
+                onDeviceReady();
               });
               $.mobile.changePage("#library-list-page");
             } catch (error) {
@@ -296,12 +296,9 @@ class UI {
 }
 
 class Data {
-  static baseURL = "http://localhost:3000";
-  static endpoint = Data.baseURL + "/api/libraries";
-
   static async fetchAndUpdate() {
     try {
-      libs = await getData(Data.endpoint);
+      libs = await getData(endpoint);
     } catch (error) {
       throw error;
     }
@@ -349,7 +346,6 @@ class Location {
       map: map,
     });
 
-    
     for (const library of libs) {
       const marker = new google.maps.Marker({
         position: new google.maps.LatLng(
@@ -363,7 +359,7 @@ class Location {
       const googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${library.location.lat},${library.location.long}`;
 
       const infoWindow = new google.maps.InfoWindow({
-        content:`<div>
+        content: `<div>
         <a href="${googleMapsURL}" target="_blank">${library.name}</a>
         <p>${library.address}</p>
       </div>`,
@@ -376,9 +372,8 @@ class Location {
   }
 }
 
-window.initMap = function () {}; // The function is left blank as Google Maps requires it but it doesn't need to do anything
-
 //Helper Functions
+window.initMap = function () {}; // The function is left blank as Google Maps requires it but it doesn't need to do anything
 async function postData(url, data) {
   try {
     const response = await $.ajax({

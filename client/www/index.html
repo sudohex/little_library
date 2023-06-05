@@ -28,90 +28,29 @@
       <div data-role="header" data-position="fixed">
         <h1>Little Libraries</h1>
         <div class="ui-btn-left">
-          <a
-            href="#"
-            data-role="button"
-            data-icon="user"
-            data-iconpos="notext"
-            class="btnMenu"
-          ></a>
-          <ul
-            class="dropDownMenu"
-            data-role="listview"
-            data-theme="a"
-            style="
-              display: none;
-              position: absolute;
-              left: 10px;
-              z-index: 1000;
-              background: #ffffff;
-              border: 1px solid #ccc;
-            "
-          >
+          <a href="#" data-role="button" data-icon="user" data-iconpos="notext" class="btnMenu"></a>
+          <ul class="dropDownMenu" data-role="listview" data-theme="a">
             <li class="menuItem">
               <a href="#login-page" class="loginBtn ui-btn">Log In</a>
-              <a href="#" data-role="button" class="logoutBtn ui-btn"
-                >Log Out</a
-              >
+              <a href="#" data-role="button" class="logoutBtn ui-btn">Log Out</a>
             </li>
           </ul>
         </div>
       </div>
       <div data-role="main" class="ui-content">
-        <!-- About -->
         <h3>Welcome!</h3>
         <p>A interactive, mobile directory of 'Little Free Libraries' in Brisbane<br>
           Find a library in the map or the list below:</p>
-        <!-- Map -->
-        <div id="map" style="height: 300px"></div>
-        <!-- Library List -->
-        <div
-          data-role="section"
-          id="library-list"
-          style="max-height: 50vh; overflow: auto"
-        >
-          <!-- Popup -->
-          <div
-            data-role="popup"
-            id="library-details-popup"
-            data-theme="a"
-            class="ui-corner-all"
-            style="
-              position: fixed;
-              width: 80vw;
-              max-width: 300px;
-              height: 60vh;
-              left: 50%;
-              top: 50%;
-              transform: translate(-50%, -50%);
-              overflow: hidden;
-              z-index: 1000;
-            "
-          >
-            <img
-              id="library-details-cover"
-              src=""
-              alt="Library cover image"
-              style="width: 100%; height: 100%; object-fit: cover"
-            />
-            <div
-              style="
-                position: absolute;
-                bottom: 0;
-                width: 100%;
-                background-color: rgba(255, 255, 255, 0.8);
-              "
-            >
+        <div id="map"></div>
+        <div data-role="section" id="library-list">
+          <div data-role="popup" id="library-details-popup" data-theme="a" class="ui-corner-all">
+            <img id="library-details-cover" src="" alt="Library cover image" />
+            <div id="library-details">
               <h3 id="library-details-name"></h3>
-              <p id="library-details-location"></p>
+              <p id="library-details-address"></p>
               <a href="#" id="navigate-button" data-role="button">Navigate</a>
             </div>
-            <a
-              href="#"
-              id="close-popup"
-              style="position: absolute; right: 10px; top: 10px"
-              >Close</a
-            >
+            <a href="#" id="close-popup">Close</a>
           </div>
         </div>
       </div>
@@ -119,11 +58,7 @@
         <div data-role="navbar">
           <ul data-role="listview">
             <li>
-              <a
-                href="#library-list-page"
-                data-icon="home"
-                style="background-color: #edb153"
-              ></a>
+              <a href="#library-list-page" data-icon="home" class="footer"></a>
             </li>
             <li>
               <a href="#find-book-page" data-icon="search"></a>
@@ -135,6 +70,7 @@
         </div>
       </footer>
     </div>
+    
     <!-- Find Book Page -->
     <div data-role="page" id="find-book-page">
       <div data-role="header" data-position="fixed">
