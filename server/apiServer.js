@@ -39,13 +39,31 @@ const LibrarySchema = new mongoose.Schema({
   location: { lat: Number, long: Number },
   books: [BookSchema],
 });
-
 const Library = mongoose.model("Library", LibrarySchema);
-
+const UserSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+});
+const User = mongoose.model("User", UserSchema);
 app.post("/api/login", cors(), (req, res) => {
-  // Here you should implement your real login mechanism.
-  // This is just a placeholder that always responds with 200 OK.
-  res.status(200).json({ msg: "Successfully logged in" });
+  // Extract username and password from the request body
+  const { username, password } = req.body;
+
+  // Find the user in the database using the username and password
+  User.findOne({ username: username, password: password })
+    .then(user => {
+      if (user) {
+        // If the user exists, send a success response
+        res.status(200).json({ msg: "Successfully logged in" });
+      } else {
+        // If the user does not exist, send an unauthorized response
+        res.status(401).json({ msg: "Unauthorized: Invalid username or password" });
+      }
+    })
+    .catch(err => {
+      // If there is an error in the query, send an internal server error response
+      res.status(500).json({ msg: "Internal Server Error", error: err });
+    });
 });
 
 // Post a new book in a specific library
