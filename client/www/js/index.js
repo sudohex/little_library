@@ -1,7 +1,7 @@
 document.addEventListener("deviceready", onDeviceReady, false);
 
 let libs;
-let baseURL = "http://localhost:3000";
+let baseURL = "https://nodeserver-cqu-little-library.onrender.com";
 let endpoint = baseURL + "/api/libraries";
 async function onDeviceReady() {
   try {
