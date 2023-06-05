@@ -3,8 +3,6 @@ document.addEventListener("deviceready", onDeviceReady, false);
 let libs;
 async function onDeviceReady() {
   try {
-    Location.loadGoogleMapsScript();
-
     await Data.fetchAndUpdate();
     await UI.initialize(libs);
     Location.setUserLocation();
@@ -255,9 +253,9 @@ class UI {
       if (!Auth.isLoggedIn()) {
         alertErrorMessage(
           "Login Required",
-          "Login is required for adding a book",
-          () => $.mobile.changePage("#login-page")
+          "Login is required for adding a book"
         );
+        $.mobile.changePage("#login-page");
       } else {
         let html = libs
           ?.map((lib) => `<option value="${lib._id}">${lib.name}</option>`)
@@ -328,14 +326,6 @@ class Location {
     this.initMap(-27.4701, 153.0217); // Default location: Brisbane Square Library
   }
 
-  static loadGoogleMapsScript() {
-    const script = document.createElement("script");
-    script.src =
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyCOvpPBfLkyrLwcDcyhvdsoL5Ym4xhZA2Y&callback=initMap&v=weekly";
-    script.defer = true;
-    document.head.appendChild(script);
-  }
-
   static initMap(latitude, longitude) {
     const iconBase =
       "https://developers.google.com/maps/documentation/javascript/examples/full/images/";
@@ -359,8 +349,8 @@ class Location {
       map: map,
     });
 
-    const libraries = libs;
-    for (const library of libraries) {
+    
+    for (const library of libs) {
       const marker = new google.maps.Marker({
         position: new google.maps.LatLng(
           library.location.lat,
@@ -370,11 +360,13 @@ class Location {
         map: map,
       });
 
+      const googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${library.location.lat},${library.location.long}`;
+
       const infoWindow = new google.maps.InfoWindow({
-        content: `<div>
-          <h2>${library.name}</h2>
-          <p>${library.address}</p>
-        </div>`,
+        content:`<div>
+        <a href="${googleMapsURL}" target="_blank">${library.name}</a>
+        <p>${library.address}</p>
+      </div>`,
       });
 
       marker.addListener("click", () => {
