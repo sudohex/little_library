@@ -1,7 +1,18 @@
 document.addEventListener("deviceready", onDeviceReady, false);
 
 let libs;
+async function onDeviceReady() {
+  try {
+    Location.loadGoogleMapsScript();
 
+    await Data.fetchAndUpdate();
+    await UI.initialize(libs);
+    Location.setUserLocation();
+  } catch (error) {
+    console.log(error);
+    alertErrorMessage("Data Fetch Error", "Failed to fetch library data");
+  }
+}
 class Auth {
   static isLoggedIn() {
     return JSON.parse(localStorage.getItem("loggedIn") || "false");
@@ -277,6 +288,84 @@ class Data {
   }
 }
 
+class Location {
+  static setUserLocation() {
+    navigator.geolocation.getCurrentPosition(
+      this.onPositionRetrieved.bind(this),
+      this.onPositionError.bind(this)
+    );
+  }
+
+  static onPositionRetrieved(position) {
+    const { latitude, longitude } = position.coords;
+    this.initMap(latitude, longitude);
+  }
+
+  static onPositionError(error) {
+    console.error("Error: ", error.message);
+    this.initMap(-27.4701, 153.0217); // Default location: Brisbane Square Library
+  }
+
+  static loadGoogleMapsScript() {
+    const script = document.createElement("script");
+    script.src =
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyCOvpPBfLkyrLwcDcyhvdsoL5Ym4xhZA2Y&callback=initMap&v=weekly";
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+
+  static initMap(latitude, longitude) {
+    const iconBase =
+      "https://developers.google.com/maps/documentation/javascript/examples/full/images/";
+    const icons = {
+      library: {
+        icon: iconBase + "library_maps.png",
+      },
+      userLocation: {
+        icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+      },
+    };
+
+    const map = new google.maps.Map(document.getElementById("map"), {
+      center: new google.maps.LatLng(latitude, longitude),
+      zoom: 10,
+    });
+
+    new google.maps.Marker({
+      position: new google.maps.LatLng(latitude, longitude),
+      icon: icons.userLocation.icon,
+      map: map,
+    });
+
+    const libraries = libs;
+    for (const library of libraries) {
+      const marker = new google.maps.Marker({
+        position: new google.maps.LatLng(
+          library.location.lat,
+          library.location.long
+        ),
+        icon: icons.library.icon,
+        map: map,
+      });
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: `<div>
+          <h2>${library.name}</h2>
+          <img src="${library.coverURL}" alt="${library.name}">
+          <p>${library.address}</p>
+        </div>`,
+      });
+
+      marker.addListener("click", () => {
+        infoWindow.open(map, marker);
+      });
+    }
+  }
+}
+
+window.initMap = function () {}; // The function is left blank as Google Maps requires it but it doesn't need to do anything
+
+//Helper Functions
 async function postData(url, data) {
   try {
     const response = await $.ajax({
@@ -320,14 +409,4 @@ function toggleLoginButtons(isLoggedIn) {
 
 function alertErrorMessage(title, defaultMsg, specificMsg) {
   navigator.notification.alert(specificMsg || defaultMsg, null, title, "OK");
-}
-
-async function onDeviceReady() {
-  try {
-    await Data.fetchAndUpdate();
-    await UI.initialize(libs);
-  } catch (error) {
-    console.log(error);
-    alertErrorMessage("Data Fetch Error", "Failed to fetch library data");
-  }
 }

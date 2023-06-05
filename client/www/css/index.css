@@ -54,3 +54,7 @@ color: #2E302D;
   font-weight: 100;
   color:gray;
 }
+#map{
+  height: 75vh; /* Take up 75% of the viewport height */
+  width: 100%;  /* Take up 100% of the viewport width for responsiveness */
+}
