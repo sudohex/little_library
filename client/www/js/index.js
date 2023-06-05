@@ -1,7 +1,7 @@
 document.addEventListener("deviceready", onDeviceReady, false);
 
 let libs;
-let baseURL = "https://nodeserver-cqu-little-library.onrender.com";
+let baseURL = "http://localhost:3000";
 let endpoint = baseURL + "/api/libraries";
 async function onDeviceReady() {
   try {
@@ -37,7 +37,7 @@ class Auth {
       alertErrorMessage(
         "Login Error",
         "There was an error logging in",
-        error.status === 403 ? "Username or password is incorrect" : undefined
+        error.status === 401 ? "Username or password is incorrect" : undefined
       );
     }
   }
@@ -175,15 +175,17 @@ class UI {
   static setupSearchDisplay(libs) {
     $("#find-book-page").on("pageshow", function () {
       $("#searchInput")
-        .off("input")
-        .on("input", function () {
+        .off("input search")
+        .on("input search", function () {
           const searchQuery = $(this).val().toLowerCase();
           const libsToDisplay = filterLibrariesByQuery(libs, searchQuery);
-          if (searchQuery?.length >= 3) displaySearchResult(libsToDisplay);
-          else
+          if (searchQuery?.length >= 3) {
+            displaySearchResult(libsToDisplay);
+          } else {
             $("#search-result").html(
               "<div><span>Type first three characters to start searching...</span></div>"
             );
+          }
         });
 
       function filterLibrariesByQuery(libs, query) {

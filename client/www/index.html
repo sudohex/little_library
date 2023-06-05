@@ -19,7 +19,10 @@
     <script src="cordova.js"></script>
     <script src="js/index.js"></script>
     <link rel="stylesheet" href="css/index.css" />
-    <script src= "https://maps.googleapis.com/maps/api/js?key=AIzaSyCOvpPBfLkyrLwcDcyhvdsoL5Ym4xhZA2Y&callback=onGoogleMapsScriptLoad&v=weekly" defer="true"></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOvpPBfLkyrLwcDcyhvdsoL5Ym4xhZA2Y&callback=initMap&v=weekly"
+      defer="true"
+    ></script>
     <title>Little Library</title>
   </head>
   <body class="body">
@@ -28,22 +31,38 @@
       <div data-role="header" data-position="fixed">
         <h1>Little Libraries</h1>
         <div class="ui-btn-left">
-          <a href="#" data-role="button" data-icon="user" data-iconpos="notext" class="btnMenu"></a>
+          <a
+            href="#"
+            data-role="button"
+            data-icon="user"
+            data-iconpos="notext"
+            class="btnMenu"
+          ></a>
           <ul class="dropDownMenu" data-role="listview" data-theme="a">
             <li class="menuItem">
               <a href="#login-page" class="loginBtn ui-btn">Log In</a>
-              <a href="#" data-role="button" class="logoutBtn ui-btn">Log Out</a>
+              <a href="#" data-role="button" class="logoutBtn ui-btn"
+                >Log Out</a
+              >
             </li>
           </ul>
         </div>
       </div>
       <div data-role="main" class="ui-content">
         <h3>Welcome!</h3>
-        <p>A interactive, mobile directory of 'Little Free Libraries' in Brisbane<br>
-          Find a library in the map or the list below:</p>
+        <p>
+          A interactive, mobile directory of 'Little Free Libraries' in
+          Brisbane<br />
+          Find a library in the map or the list below:
+        </p>
         <div id="map"></div>
         <div data-role="section" id="library-list">
-          <div data-role="popup" id="library-details-popup" data-theme="a" class="ui-corner-all">
+          <div
+            data-role="popup"
+            id="library-details-popup"
+            data-theme="a"
+            class="ui-corner-all"
+          >
             <img id="library-details-cover" src="" alt="Library cover image" />
             <div id="library-details">
               <h3 id="library-details-name"></h3>
@@ -70,7 +89,7 @@
         </div>
       </footer>
     </div>
-    
+
     <!-- Find Book Page -->
     <div data-role="page" id="find-book-page">
       <div data-role="header" data-position="fixed">
@@ -154,10 +173,10 @@
             id="text-3"
             value=""
           />
-          <div class="ui-field-contain">
-            <label>Select where the book is being added:</label>
-            <div id="librarySelect"></div>
-          </div>
+          <label for="librarySelect" style="font-size: small"
+            >Select where the book is being added:</label
+          >
+          <div id="librarySelect"></div>
           <div>
             <a
               href="#"
