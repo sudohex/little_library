@@ -1,15 +1,10 @@
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src  data: gap: https://ssl.gstatic.com; 
-				  style-src  'self' 'unsafe-inline' *;
-				  script-src 'self' 'unsafe-inline' https://maps.googleapis.com *;		
-				  media-src *; 
-				  font-src *;
-				  connect-src *;
-				  img-src 'self' * data: content:;"
+      content="default-src data: gap: https://ssl.gstatic.com; style-src 'self' 'unsafe-inline' *; script-src 'self' 'unsafe-inline' https://maps.googleapis.com *; media-src *; font-src *; connect-src *; img-src 'self' * data: content:;"
     />
     <meta name="format-detection" content="telephone=yes" />
     <meta name="msapplication-tap-highlight" content="yes" />
@@ -23,19 +18,13 @@
     <script src="js/jquery.mobile-1.4.5.js"></script>
     <script src="cordova.js"></script>
     <script src="js/index.js"></script>
-    <!-- <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap&v=weekly"
-      defer
-    ></script> -->
-
     <link rel="stylesheet" href="css/index.css" />
+    <script src= "https://maps.googleapis.com/maps/api/js?key=AIzaSyCOvpPBfLkyrLwcDcyhvdsoL5Ym4xhZA2Y&callback=onGoogleMapsScriptLoad&v=weekly" defer="true"></script>
     <title>Little Library</title>
   </head>
-
   <body class="body">
     <!-- Library List Page-->
     <div data-role="page" id="library-list-page">
-      <div id="map"></div>
       <div data-role="header" data-position="fixed">
         <h1>Little Libraries</h1>
         <div class="ui-btn-left">
@@ -61,24 +50,70 @@
           >
             <li class="menuItem">
               <a href="#login-page" class="loginBtn ui-btn">Log In</a>
-              <a href="#" data-role="button" class="logoutBtn ui-btn">Log Out</a>
+              <a href="#" data-role="button" class="logoutBtn ui-btn"
+                >Log Out</a
+              >
             </li>
           </ul>
         </div>
       </div>
-      <div data-role="main" class="ui-content"> 	  
-	  		<h3>Welcome!</h3>
-			<p>A interactive, mobile directory of 'Little Free Libraries' in Brisbane<br>
-			Find a library in the map or the list below:</p>
-		</div>
 
-      <div data-role="main" id="library-list" class="ui-content">
-
-        <div data-role="popup" id="library-details-popup" data-theme="a" class="ui-corner-all">
-          <img id="library-details-cover" src="" alt="Library cover image" style="max-width: 80vw"/>
-          <h3 id="library-details-name"></h3>
-          <p id="library-details-location"></p>
-          <a href="#" id="navigate-button" data-role="button">Navigate</a>
+      <div data-role="main" class="ui-content">
+        <!-- About -->
+        <h3>Welcome!</h3>
+        <p>A interactive, mobile directory of 'Little Free Libraries' in Brisbane<br>
+          Find a library in the map or the list below:</p>
+        <!-- Map -->
+        <div id="map" style="height: 300px"></div>
+        <!-- Library List -->
+        <div
+          data-role="section"
+          id="library-list"
+          style="max-height: 50vh; overflow: auto"
+        >
+          <!-- Popup -->
+          <div
+            data-role="popup"
+            id="library-details-popup"
+            data-theme="a"
+            class="ui-corner-all"
+            style="
+              position: fixed;
+              width: 80vw;
+              max-width: 300px;
+              height: 60vh;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+              overflow: hidden;
+              z-index: 1000;
+            "
+          >
+            <img
+              id="library-details-cover"
+              src=""
+              alt="Library cover image"
+              style="width: 100%; height: 100%; object-fit: cover"
+            />
+            <div
+              style="
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                background-color: rgba(255, 255, 255, 0.8);
+              "
+            >
+              <h3 id="library-details-name"></h3>
+              <p id="library-details-location"></p>
+              <a href="#" id="navigate-button" data-role="button">Navigate</a>
+            </div>
+            <a
+              href="#"
+              id="close-popup"
+              style="position: absolute; right: 10px; top: 10px"
+              >Close</a
+            >
+          </div>
         </div>
       </div>
       <footer data-role="footer" data-position="fixed" id="footer">
@@ -91,14 +126,16 @@
                 style="background-color: #edb153"
               ></a>
             </li>
-
-            <li><a href="#find-book-page" data-icon="search"></a></li>
-            <li><a href="#add-book-page" data-icon="plus"></a></li>
+            <li>
+              <a href="#find-book-page" data-icon="search"></a>
+            </li>
+            <li>
+              <a href="#add-book-page" data-icon="plus"></a>
+            </li>
           </ul>
         </div>
       </footer>
     </div>
-
     <!-- Find Book Page -->
     <div data-role="page" id="find-book-page">
       <div data-role="header" data-position="fixed">
@@ -143,14 +180,14 @@
           value=""
           placeholder="Search"
         />
-
         <div data-role="section" class="ui-content" id="search-result"></div>
       </div>
       <footer data-role="footer" data-position="fixed" id="footer">
         <div data-role="navbar">
           <ul data-role="listview">
-            <li><a href="#library-list-page" data-icon="home"></a></li>
-
+            <li>
+              <a href="#library-list-page" data-icon="home"></a>
+            </li>
             <li>
               <a
                 href="#find-book-page"
@@ -158,20 +195,20 @@
                 style="background-color: #edb153"
               ></a>
             </li>
-            <li><a href="#add-book-page" data-icon="plus"></a></li>
+            <li>
+              <a href="#add-book-page" data-icon="plus"></a>
+            </li>
           </ul>
         </div>
       </footer>
     </div>
-
     <!-- Add New Book -->
     <div data-role="page" id="add-book-page">
       <div data-role="header" data-position="fixed">
         <h1>Add a Book</h1>
       </div>
-
       <div style="padding: 30px">
-        <form id="newBookForm">
+        <form id="newBookForm" name="newBookForm">
           <label for="text-1">Title:</label>
           <input type="text" name="text-1" id="text-1" value="" />
           <label for="text-3">Author (Last Name, First Name):</label>
@@ -182,12 +219,10 @@
             id="text-3"
             value=""
           />
-
           <div class="ui-field-contain">
             <label>Select where the book is being added:</label>
             <div id="librarySelect"></div>
           </div>
-
           <div>
             <a
               href="#"
@@ -195,28 +230,30 @@
               id="saveNewBook"
               class="ui-btn ui-corner-all"
               data-inline="true"
+              >Add New Book</a
             >
-              Add New Book
-            </a>
-			          <div>
-            <a
-              href="#library-list-page"
-              data-role="button"
-              id="cancelAddBook"
-              class="ui-btn ui-corner-all"
-              data-inline="true"
-            >
-              Cancel
-            </a>
+            <div>
+              <a
+                href="#library-list-page"
+                data-role="button"
+                id="cancelAddBook"
+                class="ui-btn ui-corner-all"
+                data-inline="true"
+                >Cancel</a
+              >
+            </div>
           </div>
         </form>
       </div>
       <footer data-role="footer" data-position="fixed" id="footer">
         <div data-role="navbar">
           <ul data-role="listview">
-            <li><a href="#library-list-page" data-icon="home"></a></li>
-
-            <li><a href="#find-book-page" data-icon="search"></a></li>
+            <li>
+              <a href="#library-list-page" data-icon="home"></a>
+            </li>
+            <li>
+              <a href="#find-book-page" data-icon="search"></a>
+            </li>
             <li>
               <a
                 href="#add-book-page"
@@ -228,14 +265,13 @@
         </div>
       </footer>
     </div>
-
     <!-- Login Page -->
     <div data-role="page" id="login-page">
       <div data-role="header" data-position="fixed">
         <h1>Login</h1>
       </div>
       <div data-role="main" class="ui-content">
-        <form id="loginForm">
+        <form id="loginForm" name="loginForm">
           <label for="username">Username:</label>
           <input type="text" name="username" id="username" value="" />
           <label for="password">Password:</label>

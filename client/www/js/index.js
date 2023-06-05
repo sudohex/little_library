@@ -3,8 +3,6 @@ document.addEventListener("deviceready", onDeviceReady, false);
 let libs;
 async function onDeviceReady() {
   try {
-    Location.loadGoogleMapsScript();
-
     await Data.fetchAndUpdate();
     await UI.initialize(libs);
     Location.setUserLocation();
@@ -100,7 +98,6 @@ class UI {
       }
     });
   }
-
   static displayLibraries(libs) {
     let html = libs
       .map(
@@ -108,7 +105,7 @@ class UI {
           `<a href="#library-details-popup" data-rel="popup" data-library-id="${lib._id}">
           <div style="display:flex; justify-content: space-between;">
             <div>
-              <img src="${lib.coverURL}" class="library-icon" style="margin-right: 10px;">
+              <img src="${lib.coverURL}" class="library-icon" style="margin:auto;">
               <span class="library-name">${lib.name}</span>
             </div>
           </div>
@@ -117,9 +114,56 @@ class UI {
       .join("");
 
     $("#library-list").html(`<div>${html}</div>`);
-    UI.bindLibraryClickEvents(libs);
+    this.bindLibraryClickEvents(libs);
+  }
+  static bindLibraryClickEvents(libs) {
+    const popupElements = {
+      cover: $("#library-details-cover"),
+      name: $("#library-details-name"),
+      location: $("#library-details-location"),
+      navigateButton: $("#navigate-button"),
+      closeButton: $("#close-popup"),
+      popup: $("#library-details-popup"),
+    };
+
+    $(document).on("click", "[data-rel=popup]", function () {
+      const library = libs.find(
+        (lib) => lib._id === $(this).data("library-id")
+      );
+
+      if (library) {
+        UI.updatePopupContent(library, popupElements);
+      }
+    });
   }
 
+  static updatePopupContent(library, popupElements) {
+    const { cover, name, location, navigateButton, closeButton, popup } =
+      popupElements;
+    const {
+      coverURL,
+      name: libName,
+      address,
+      location: { lat, long },
+    } = library;
+
+    cover.attr("src", coverURL);
+    name.text(libName);
+    location.text(address);
+
+    navigateButton.off("click").on("click", function (e) {
+      e.preventDefault();
+      window.open(
+        `https://www.google.com/maps/search/?api=1&query=${lat},${long}`,
+        "_blank"
+      );
+    });
+
+    closeButton.off("click").on("click", function (e) {
+      e.preventDefault();
+      popup.popup("close");
+    });
+  }
   static setupLoginDisplay() {
     $("#login-page").on("pageshow", function () {
       $("#loginButton").on("click", function (event) {
@@ -128,7 +172,6 @@ class UI {
       });
     });
   }
-
   static setupSearchDisplay(libs) {
     $("#find-book-page").on("pageshow", function () {
       $("#searchInput")
@@ -205,15 +248,14 @@ class UI {
       }
     });
   }
-
   static setupAddBookDisplay(libs) {
     $("#add-book-page").on("pageshow", async function () {
       if (!Auth.isLoggedIn()) {
         alertErrorMessage(
           "Login Required",
-          "Login is required for adding a book",
-          () => $.mobile.changePage("#login-page")
+          "Login is required for adding a book"
         );
+        $.mobile.changePage("#login-page");
       } else {
         let html = libs
           ?.map((lib) => `<option value="${lib._id}">${lib.name}</option>`)
@@ -251,28 +293,6 @@ class UI {
       }
     });
   }
-
-  static bindLibraryClickEvents(libs) {
-    $(document).on("click", "[data-rel=popup]", function () {
-      const libraryId = $(this).data("library-id");
-      const library = libs.find((lib) => lib._id === libraryId);
-
-      if (library) {
-        $("#library-details-cover").attr("src", library.coverURL);
-        $("#library-details-name").text(library.name);
-        $("#library-details-location").text(library.address);
-        let latitude = library.location.lat;
-        let longitude = library.location.long;
-        $("#navigate-button")
-          .off("click")
-          .on("click", function (e) {
-            e.preventDefault();
-            let googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
-            window.open(googleMapsURL, "_blank");
-          });
-      }
-    });
-  }
 }
 
 class Data {
@@ -306,14 +326,6 @@ class Location {
     this.initMap(-27.4701, 153.0217); // Default location: Brisbane Square Library
   }
 
-  static loadGoogleMapsScript() {
-    const script = document.createElement("script");
-    script.src =
-      "https://maps.googleapis.com/maps/api/js?key=AIzaSyCOvpPBfLkyrLwcDcyhvdsoL5Ym4xhZA2Y&callback=initMap&v=weekly";
-    script.defer = true;
-    document.head.appendChild(script);
-  }
-
   static initMap(latitude, longitude) {
     const iconBase =
       "https://developers.google.com/maps/documentation/javascript/examples/full/images/";
@@ -337,8 +349,8 @@ class Location {
       map: map,
     });
 
-    const libraries = libs;
-    for (const library of libraries) {
+    
+    for (const library of libs) {
       const marker = new google.maps.Marker({
         position: new google.maps.LatLng(
           library.location.lat,
@@ -348,12 +360,13 @@ class Location {
         map: map,
       });
 
+      const googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${library.location.lat},${library.location.long}`;
+
       const infoWindow = new google.maps.InfoWindow({
-        content: `<div>
-          <h2>${library.name}</h2>
-          <img src="${library.coverURL}" alt="${library.name}">
-          <p>${library.address}</p>
-        </div>`,
+        content:`<div>
+        <a href="${googleMapsURL}" target="_blank">${library.name}</a>
+        <p>${library.address}</p>
+      </div>`,
       });
 
       marker.addListener("click", () => {
