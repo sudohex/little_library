@@ -2,6 +2,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 let libs;
 let baseURL = "https://nodeserver-cqu-little-library.onrender.com";
+// let baseURL = "http://localhost:3000"
 let endpoint = baseURL + "/api/libraries";
 async function onDeviceReady() {
   try {
@@ -29,6 +30,7 @@ class Auth {
 
     try {
       const data = await postData(baseURL + "/api/login", loginData);
+      console.log(data);
       localStorage.setItem("loggedIn", "true");
       $(".loginBtn").hide();
       $(".logoutBtn").show();
@@ -52,37 +54,11 @@ class UI {
     UI.displayLibraries(libs);
     UI.setupMenu();
     UI.setupLoginDisplay();
-    UI.setupSwipeEvents();
     UI.setupSearchDisplay(libs);
     UI.setupAddBookDisplay(libs);
+    UI.setupAddLibraryDisplay();
   }
-  static setupSwipeEvents() {
-    $("#library-list-page").on("swiperight", function () {
-      $.mobile.changePage("#find-book-page", { transition: "slide" });
-    });
-    $("#find-book-page").on("swipeleft", function () {
-      $.mobile.changePage("#library-list-page", {
-        transition: "slide",
-        reverse: true,
-      });
-    });
 
-    $("#find-book-page").on("swiperight", function () {
-      $.mobile.changePage("#add-book-page", { transition: "slide" });
-    });
-    $("#find-book-page").on("swipeleft", function () {
-      $.mobile.changePage("#library-list-page", {
-        transition: "slide",
-        reverse: true,
-      });
-    });
-    $("#add-book-page").on("swipeleft", function () {
-      $.mobile.changePage("#find-book-page", {
-        transition: "slide",
-        reverse: true,
-      });
-    });
-  }
   static setupMenu() {
     toggleLoginButtons(Auth.isLoggedIn());
     $(".logoutBtn").on("click", () => {
@@ -295,6 +271,107 @@ class UI {
       }
     });
   }
+  static setupAddLibraryDisplay() {
+    $("#add-library-page").on("pageshow", async function () {
+      if (!Auth.isLoggedIn()) {
+        alertErrorMessage(
+          "Login Required",
+          "Login is required for adding a library"
+        );
+        $.mobile.changePage("#login-page");
+      } else {
+        let imageToSave;
+        $("#imageInput").on("click", function () {
+          navigator.camera.getPicture(onSuccess, onFail, {
+            quality: 50,
+            destinationType: Camera.DestinationType.DATA_URL
+          });
+
+          function onSuccess(imageData) {
+            var image = document.getElementById('previewImage');
+            image.src = "data:image/jpeg;base64," + imageData;
+            imageToSave = imageData
+            image.style.display = "block";
+            document.getElementById('libraryImage').value = imageData;
+          }
+
+          function onFail(message) {
+            alert('Failed because: ' + message);
+          }
+        });
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function (position) {
+            $("#newLibraryForm").data('location', {
+              lat: position.coords.latitude,
+              long: position.coords.longitude
+            });
+          });
+        }
+        $("#saveNewLibrary")
+          .off("click")
+          .on("click", async function (e) {
+            e.preventDefault();
+            const name = $("#text-2").val();
+            const address = $("#text-4").val();
+            const imageName = "/img/" + Date.now() + ".png";
+            const libraryData = {
+              name: name,
+              address: address,
+              location: $("#newLibraryForm").data('location'),
+              coverURL: imageName
+            };
+
+            try {
+              await postData(
+                `${baseURL}/api/libraries`,
+                libraryData
+              ).then(async (res) => {
+                saveImage(imageToSave, imageName)
+                onDeviceReady();
+              });
+              $.mobile.changePage("#library-list-page");
+            } catch (error) {
+              console.error(error)
+              alertErrorMessage("Error", "There was an error adding the library");
+            }
+          });
+
+          function getDirectory(dirEntry, dirName, callback) {
+            dirEntry.getDirectory(dirName, { create: true }, callback, onError);
+          }
+          
+          function saveImage(imageToSave, imageName) {
+            var imageFolder = cordova.file.dataDirectory;
+            console.log(imageFolder)
+            var byteCharacters = atob(imageToSave);
+            var byteNumbers = new Array(byteCharacters.length);
+            for (var i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            var byteArray = new Uint8Array(byteNumbers);
+            var blob = new Blob([byteArray], { type: "image/png" });
+          
+            window.resolveLocalFileSystemURL(imageFolder, function(dirEntry) {
+              getDirectory(dirEntry, 'img', function(dir) {
+                console.log(dir)
+                dir.getFile(imageName, { create: true }, function(file) {
+                  file.createWriter(function(fileWriter) {
+                    fileWriter.write(blob);
+                  }, onError);
+                }, onError);
+              });
+            }, onError);
+          }
+          
+        function onError(error) {
+          alert("Failed to save image: " + error.code);
+        }
+
+      }
+    });
+  }
+
 }
 
 class Data {
@@ -309,9 +386,13 @@ class Data {
 
 class Location {
   static setUserLocation() {
+    var options = {
+      enableHighAccuracy: true,
+      maximumAge: 3600000
+    }
     navigator.geolocation.getCurrentPosition(
       this.onPositionRetrieved.bind(this),
-      this.onPositionError.bind(this)
+      this.onPositionError.bind(this), options
     );
   }
 
@@ -326,14 +407,12 @@ class Location {
   }
 
   static initMap(latitude, longitude) {
-    const iconBase =
-      "https://developers.google.com/maps/documentation/javascript/examples/full/images/";
     const icons = {
       library: {
-        icon: iconBase + "library_maps.png",
+        icon: "/img/library_maps.png",
       },
       userLocation: {
-        icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+        icon: "/img/blue-dot.png",
       },
     };
 
@@ -375,7 +454,7 @@ class Location {
 }
 
 //Helper Functions
-window.initMap = function () {}; // The function is left blank as Google Maps requires it but it doesn't need to do anything
+window.initMap = function () { }; // The function is left blank as Google Maps requires it but it doesn't need to do anything
 async function postData(url, data) {
   try {
     const response = await $.ajax({

@@ -84,6 +84,10 @@ app.post("/api/libraries/:id/books", cors(), async (req, res) => {
 });
 
 // Post a new library
+// name: String,
+// address: String,
+// location: { lat: Number, long: Number },
+// image
 app.post("/api/libraries", cors(), async (req, res) => {
   try {
     const newLibrary = new Library(req.body);
