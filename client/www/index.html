@@ -10,14 +10,15 @@
   <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
   <link rel="stylesheet" href="css/jquery.mobile-1.4.5.css" />
+  <script src="cordova.js"></script>
   <script src="js/jQuery.js"></script>
   <script src="js/jquery.mobile-1.4.5.js"></script>
-  <script src="cordova.js"></script>
-  <script src="js/index.js"></script>
-  <link rel="stylesheet" href="css/index.css" />
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCOvpPBfLkyrLwcDcyhvdsoL5Ym4xhZA2Y&callback=initMap&v=weekly"
     defer="true"></script>
+  <script src="js/index.js"></script>
+  <link rel="stylesheet" href="css/index.css" />
+
   <title>Little Library</title>
 </head>
 
@@ -35,43 +36,61 @@
           </li>
         </ul>
       </div>
+      <div class="ui-btn-right">
+        <a href="#" data-role="button" data-icon="refresh" data-iconpos="notext" class="btnRefresh"></a>
+      </div>
     </div>
     <div data-role="main" class="ui-content">
       <h3>Welcome!</h3>
-      <p>
-        A interactive, mobile directory of 'Little Free Libraries' in
-        Brisbane<br />
-        Find a library in the map or the list below:
-      </p>
-      <div id="map"></div>
-      <div data-role="section" id="library-list">
-        <div data-role="popup" id="library-details-popup" data-theme="a" class="ui-corner-all">
-          <img id="library-details-cover" src="" alt="Library cover image" />
-          <div id="library-details">
-            <h3 id="library-details-name"></h3>
-            <p id="library-details-address"></p>
-            <a href="#" id="navigate-button" data-role="button">Navigate</a>
-          </div>
-          <a href="#" id="close-popup">Close</a>
+      <p>A interactive, mobile directory of 'Little Free Libraries' in Brisbane</p>
+      <!-- Begin tabbed content -->
+      <div data-role="tabs" id="library-list-tabs">
+        <div data-role="navbar">
+          <ul>
+            <li><a href="#mapTab" data-ajax="false">Map</a></li>
+            <li><a href="#listTab" data-ajax="false">List</a></li>
+          </ul>
         </div>
+        <div id="mapTab">
+          <p>Find a library on the map:</p>
+          <div id="map"></div>
+        </div>
+        <div id="listTab">
+          <p>Or find a library from the list below:</p>
+          <div data-role="section" id="library-list">
+            <div data-role="popup" id="library-details-popup" data-theme="a" class="ui-corner-all">
+              <img id="library-details-cover" src="" alt="Library cover image" />
+              <div id="library-details">
+                <h3 id="library-details-name"></h3>
+                <p id="library-details-address"></p>
+                <a href="#" id="navigate-button" data-role="button">Navigate</a>
+              </div>
+              <a href="#" id="close-popup">Close</a>
+            </div>
+          </div>
+        </div>
+
+
       </div>
+      <!-- End tabbed content -->
     </div>
     <footer data-role="footer" data-position="fixed" id="footer">
       <div data-role="navbar">
         <ul data-role="listview">
           <li>
-            <a href="#library-list-page" data-icon="home" class="footer"></a>
+            <a href="#library-list-page" data-icon="home" style="background-color: #edb153;"></a>
           </li>
           <li>
             <a href="#find-book-page" data-icon="search"></a>
           </li>
           <li>
-            <a href="#add-book-page" data-icon="plus"></a>
+            <a href="#add-page" data-icon="plus"></a>
           </li>
         </ul>
       </div>
     </footer>
   </div>
+
 
   <!-- Find Book Page -->
   <div data-role="page" id="find-book-page">
@@ -93,6 +112,9 @@
           </li>
         </ul>
       </div>
+      <div class="ui-btn-right">
+        <a href="#" data-role="button" data-icon="refresh" data-iconpos="notext" class="btnRefresh"></a>
+      </div>
     </div>
     <div data-role="main" class="ui-content">
       <h3>Search for a book by title or author</h3>
@@ -110,35 +132,68 @@
             <a href="#find-book-page" data-icon="search" style="background-color: #edb153"></a>
           </li>
           <li>
-            <a href="#add-book-page" data-icon="plus"></a>
+            <a href="#add-page" data-icon="plus"></a>
           </li>
         </ul>
       </div>
     </footer>
   </div>
-  <!-- Add New Book -->
-  <div data-role="page" id="add-book-page">
+  <!-- Add New Book or Library -->
+  <div data-role="page" id="add-page">
     <div data-role="header" data-position="fixed">
-      <h1>Add a Book</h1>
-      <a href="#add-library-page">Add a Library</a>
+      <h1>Add New Data</h1>
     </div>
-    <div style="padding: 30px">
-      <form id="newBookForm" name="newBookForm">
-        <label for="text-1">Title:</label>
-        <input type="text" name="text-1" id="text-1" value="" />
-        <label for="text-3">Author (Last Name, First Name):</label>
-        <input type="text" data-clear-btn="true" name="text-3" id="text-3" value="" />
-        <label for="librarySelect" style="font-size: small">Select where the book is being added:</label>
-        <div id="librarySelect"></div>
-        <div>
-          <a href="#" data-role="button" id="saveNewBook" class="ui-btn ui-corner-all" data-inline="true">Add New
-            Book</a>
-          <div>
-            <a href="#library-list-page" data-role="button" id="cancelAddBook" class="ui-btn ui-corner-all"
-              data-inline="true">Cancel</a>
-          </div>
+    <div data-role="main" class="ui-content">
+      <!-- Begin tabbed content -->
+      <div data-role="tabs" id="addTabs">
+        <div data-role="navbar">
+          <ul>
+            <li><a href="#addBookTab" data-ajax="false">Add Book</a></li>
+            <li><a href="#addLibraryTab" data-ajax="false">Add Library</a></li>
+          </ul>
         </div>
-      </form>
+        <div id="addBookTab" style="padding: 30px">
+          <h2>Enter Book Details</h2>
+          <form id="newBookForm" name="newBookForm">
+            <label for="text-1">Title:</label>
+            <input type="text" name="text-1" id="text-1" value="" />
+            <label for="text-3">Author (Last Name, First Name):</label>
+            <input type="text" data-clear-btn="true" name="text-3" id="text-3" value="" />
+            <label for="librarySelect" style="font-size: small">Select where the book is being added:</label>
+            <div id="librarySelect"></div>
+            <div>
+              <a href="#" data-role="button" id="saveNewBook" class="ui-btn ui-corner-all" data-inline="true">Add New
+                Book</a>
+              <div>
+                <a href="#library-list-page" data-role="button" id="cancelAddBook" class="ui-btn ui-corner-all"
+                  data-inline="true">Cancel</a>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div id="addLibraryTab" style="padding: 30px">
+          <h2>Enter Library Details</h2>
+          <form id="newLibraryForm" name="newLibraryForm">
+            <label for="text-2">Name:</label>
+            <input type="text" name="text-2" id="text-2" value="" />
+            <label for="text-4">Address:</label>
+            <input type="text" name="text-4" id="text-4" value="" />
+            <label for="imageInput">Library Image:</label>
+            <input type="button" id="imageInput" value="Upload Image" />
+            <img id="previewImage" src="" style="display: none;" />
+            <input type="hidden" id="libraryImage" name="libraryImage" />
+            <div>
+              <a href="#" data-role="button" id="saveNewLibrary" class="ui-btn ui-corner-all" data-inline="true">Add New
+                Library</a>
+            </div>
+            <div>
+              <a href="#library-list-page" data-role="button" id="cancelAddLibrary" class="ui-btn ui-corner-all"
+                data-inline="true">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- End tabbed content -->
     </div>
     <footer data-role="footer" data-position="fixed" id="footer">
       <div data-role="navbar">
@@ -150,40 +205,14 @@
             <a href="#find-book-page" data-icon="search"></a>
           </li>
           <li>
-            <a href="#add-book-page" data-icon="plus" style="background-color: #edb153"></a>
+            <a href="#add-page" data-icon="plus" style="background-color: #edb153"></a>
           </li>
         </ul>
       </div>
     </footer>
   </div>
-  <!-- Add New Library -->
-  <div data-role="page" id="add-library-page">
-    <div data-role="header" data-position="fixed">
-      <a href="#add-book-page">Add a Book</a>
-      <h1>Add a Library</h1>
 
-    </div>
-    <div style="padding: 30px">
-      <form id="newLibraryForm" name="newLibraryForm">
-        <label for="text-2">Name:</label>
-        <input type="text" name="text-2" id="text-2" value="" />
-        <label for="text-4">Address:</label>
-        <input type="text" name="text-4" id="text-4" value="" />
-        <label for="imageInput">Library Image:</label>
-        <input type="button" id="imageInput" value="Upload Image" />
-        <img id="previewImage" src="" style="display: none;" />
-        <input type="hidden" id="libraryImage" name="libraryImage" />
-        <div>
-          <a href="#" data-role="button" id="saveNewLibrary" class="ui-btn ui-corner-all" data-inline="true">Add New
-            Library</a>
-        </div>
-        <div>
-          <a href="#library-list-page" data-role="button" id="cancelAddLibrary" class="ui-btn ui-corner-all"
-            data-inline="true">Cancel</a>
-        </div>
-      </form>
-    </div>
-  </div>
+
   <!-- Login Page -->
   <div data-role="page" id="login-page">
     <div data-role="header" data-position="fixed">

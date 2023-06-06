@@ -107,3 +107,34 @@ color: #2E302D;
   background-color: #edb153;
 }
 
+#imageInput {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  text-align: center;
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#imageInput:hover {
+  background: #0056b3;
+}
+
+#previewImage {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 5px;
+}
+#librarySelectBox {
+  width: 100%;
+  background-color: white; 
+  color: black;
+  height: 30px;
+}

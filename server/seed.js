@@ -5,8 +5,8 @@ const dummyData = {
       coverURL: "/img/annerley.jpg",
       address: "450 Ipswich Road, Annerley, QLD, 4103",
       location: {
-        lat:40.293490,
-        long: -79.994580,
+        lat: -27.509399,
+        long: 153.033173,
       },
       books: [
         {
@@ -33,8 +33,8 @@ const dummyData = {
       coverURL: "/img/ashgrove.jpg",
       address: "123 Ashgrove Ave, Ashgrove, QLD, 4060",
       location: {
-        lat: 37.318410,
-        long: -93.581760,
+        lat: -27.438490,
+        long: 152.999313,
       },
       books: [
         {
@@ -62,8 +62,8 @@ const dummyData = {
       coverURL: "/img/banyo.jpg",
       address: "200 Banyo Street, Banyo, QLD, 4014",
       location: {
-        lat: 6.750210,
-        long: 11.810850,
+        lat: -27.384940,
+        long: 153.076310,
       },
       books: [
         {
@@ -85,8 +85,8 @@ const dummyData = {
       coverURL: "/img/bracken-ridge.jpg",
       address: "77 Bracken Street, Bracken Ridge, QLD, 4017",
       location: {
-        lat: -27.327030,
-        long: 153.0301,
+        lat: -27.317970,
+        long: 153.037888,
       },
       books: [
         {
@@ -102,8 +102,8 @@ const dummyData = {
       coverURL: "/img/brisbane-square.jpg",
       address: "266 George Street, Brisbane City, QLD, 4000",
       location: {
-        lat: -27.4701,
-        long: 153.0217,
+        lat: -27.470870,
+        long: 153.022740,
       },
       books: [
         {
@@ -119,8 +119,8 @@ const dummyData = {
       coverURL: "/img/bulimba.jpg",
       address: "154 Oxford Street, Bulimba, QLD, 4171",
       location: {
-        lat: -27.4497,
-        long: 153.0585,
+        lat: -27.451070,
+        long: 153.057380,
       },
       books: [
         {
@@ -153,8 +153,8 @@ const dummyData = {
       coverURL: "/img/carindale.jpg",
       address: "1151 Creek Road, Carindale, QLD, 4152",
       location: {
-        lat: -27.5097,
-        long: 153.0996,
+        lat: -27.503160,
+        long: 153.101650,
       },
       books: [
         {

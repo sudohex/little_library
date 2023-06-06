@@ -1,10 +1,14 @@
 document.addEventListener("deviceready", onDeviceReady, false);
-
 let libs;
 let baseURL = "https://nodeserver-cqu-little-library.onrender.com";
 // let baseURL = "http://localhost:3000"
 let endpoint = baseURL + "/api/libraries";
+let isOnHomePage = true;
+
+// Main func
 async function onDeviceReady() {
+  document.addEventListener("backbutton", onBackKeyDown, false);
+  SpinnerDialog.show(null, "Loading data...");
   try {
     await Data.fetchAndUpdate();
     await UI.initialize(libs);
@@ -12,8 +16,97 @@ async function onDeviceReady() {
   } catch (error) {
     console.log(error);
     alertErrorMessage("Data Fetch Error", "Failed to fetch library data");
+  } finally {
+    SpinnerDialog.hide();
   }
 }
+// Override default back key function
+function onBackKeyDown(e) {
+  e.preventDefault();
+  if (isOnHomePage) {
+    navigator.app.exitApp();
+  } else {
+    window.location.href = "index.html";
+    isOnHomePage = true;
+  }
+}
+// This function should be called whenever the user navigates away from the home page
+function onNavigateAwayFromHome() {
+  isOnHomePage = false;
+}
+
+// Code that deals with Location (Google Map)
+class Location {
+  static setUserLocation() {
+    var options = {
+      enableHighAccuracy: true,
+      maximumAge: 3600000,
+    };
+    navigator.geolocation.getCurrentPosition(
+      this.onPositionRetrieved.bind(this),
+      this.onPositionError.bind(this),
+      options
+    );
+  }
+
+  static onPositionRetrieved(position) {
+    const { latitude, longitude } = position.coords;
+    this.initMap(latitude, longitude);
+  }
+
+  static onPositionError(error) {
+    console.error("Error: ", error.message);
+    this.initMap(-27.4701, 153.0217); // Default location: Brisbane Square Library
+  }
+
+  static initMap(latitude, longitude) {
+    const icons = {
+      library: {
+        icon: "/img/library_maps.png",
+      },
+      userLocation: {
+        icon: "/img/blue-dot.png",
+      },
+    };
+
+    const map = new google.maps.Map(document.getElementById("map"), {
+      center: new google.maps.LatLng(latitude, longitude),
+      zoom: 10,
+    });
+
+    new google.maps.Marker({
+      position: new google.maps.LatLng(latitude, longitude),
+      icon: icons.userLocation.icon,
+      map: map,
+    });
+
+    for (const library of libs) {
+      const marker = new google.maps.Marker({
+        position: new google.maps.LatLng(
+          library.location.lat,
+          library.location.long
+        ),
+        icon: icons.library.icon,
+        map: map,
+      });
+
+      const googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${library.location.lat},${library.location.long}`;
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: `<div>
+        <a href="${googleMapsURL}" target="_blank">${library.name}</a>
+        <p>${library.address}</p>
+      </div>`,
+      });
+
+      marker.addListener("click", () => {
+        infoWindow.open(map, marker);
+      });
+    }
+  }
+}
+
+// Code that deals with Log in/ Log out
 class Auth {
   static isLoggedIn() {
     return JSON.parse(localStorage.getItem("loggedIn") || "false");
@@ -28,35 +121,40 @@ class Auth {
       password: password,
     };
 
-    try {
-      const data = await postData(baseURL + "/api/login", loginData);
-      console.log(data);
-      localStorage.setItem("loggedIn", "true");
-      $(".loginBtn").hide();
-      $(".logoutBtn").show();
-      $.mobile.changePage("#library-list-page");
-    } catch (error) {
-      alertErrorMessage(
-        "Login Error",
-        "There was an error logging in",
-        error.status === 401 ? "Username or password is incorrect" : undefined
-      );
-    }
+    await postData(baseURL + "/api/login", loginData)
+      .then(() => {
+        localStorage.setItem("loggedIn", "true");
+        $(".loginBtn").hide();
+        $(".logoutBtn").show();
+        // Cleanup after successful login
+        $("#username").val(""); // Clear username field
+        $("#password").val(""); // Clear password field
+        $.mobile.changePage("#library-list-page");
+      })
+      .catch((error) => {
+        alertErrorMessage(
+          "Login Error",
+          "There was an error logging in",
+          error.status === 401 ? "Username or password is incorrect" : undefined
+        );
+      });
   }
 
   static logout() {
     localStorage.setItem("loggedIn", "false");
+    // Cleanup after logout
+    toggleLoginButtons(false);
   }
 }
 
+// Code that set up user 
 class UI {
   static async initialize(libs) {
     UI.displayLibraries(libs);
     UI.setupMenu();
     UI.setupLoginDisplay();
     UI.setupSearchDisplay(libs);
-    UI.setupAddBookDisplay(libs);
-    UI.setupAddLibraryDisplay();
+    UI.setupAddDisplay(libs);
   }
 
   static setupMenu() {
@@ -75,6 +173,12 @@ class UI {
         $(".dropDownMenu").hide();
       }
     });
+
+    $(".btnRefresh")
+      .off("click")
+      .on("click", () => {
+        onDeviceReady();
+      });
   }
   static displayLibraries(libs) {
     let html = libs
@@ -142,14 +246,18 @@ class UI {
   }
   static setupLoginDisplay() {
     $("#login-page").on("pageshow", function () {
-      $("#loginButton").on("click", function (event) {
-        event.preventDefault();
-        Auth.login();
-      });
+      onNavigateAwayFromHome();
+      $("#loginButton")
+        .off("click")
+        .on("click", function (event) {
+          event.preventDefault();
+          Auth.login();
+        });
     });
   }
   static setupSearchDisplay(libs) {
     $("#find-book-page").on("pageshow", function () {
+      onNavigateAwayFromHome();
       $("#searchInput")
         .off("input search")
         .on("input search", function () {
@@ -226,23 +334,24 @@ class UI {
       }
     });
   }
-  static setupAddBookDisplay(libs) {
-    $("#add-book-page").on("pageshow", async function () {
+  static setupAddDisplay(libs) {
+    $("#add-page").on("pageshow", async function () {
+      onNavigateAwayFromHome();
       if (!Auth.isLoggedIn()) {
         alertErrorMessage(
           "Login Required",
-          "Login is required for adding a book"
+          "Login is required for adding a library or a book"
         );
         $.mobile.changePage("#login-page");
       } else {
+        // setup add book form
         let html = libs
           ?.map((lib) => `<option value="${lib._id}">${lib.name}</option>`)
           .join("");
 
         $("#librarySelect").html(
-          `<select data-native-menu="false" style="width:100%;background-color:white; height:30px;">${html}</select>`
+          `<select id="librarySelectBox">${html}</select>`
         );
-
         $("#saveNewBook")
           .off("click")
           .on("click", async function (e) {
@@ -261,50 +370,44 @@ class UI {
                 `${baseURL}/api/libraries/${libraryId}/books`,
                 bookData
               ).then(async (res) => {
+                // Cleanup after adding new book
+                $("#text-1").val(""); // Clear book title
+                $("#text-3").val(""); // Clear book author
                 onDeviceReady();
               });
+
               $.mobile.changePage("#library-list-page");
             } catch (error) {
               alertErrorMessage("Error", "There was an error adding the book");
             }
           });
-      }
-    });
-  }
-  static setupAddLibraryDisplay() {
-    $("#add-library-page").on("pageshow", async function () {
-      if (!Auth.isLoggedIn()) {
-        alertErrorMessage(
-          "Login Required",
-          "Login is required for adding a library"
-        );
-        $.mobile.changePage("#login-page");
-      } else {
-        let imageToSave;
-        $("#imageInput").on("click", function () {
-          navigator.camera.getPicture(onSuccess, onFail, {
-            quality: 50,
-            destinationType: Camera.DestinationType.DATA_URL
+
+        // setup add library form
+        $("#imageInput")
+          .off("click")
+          .on("click", function () {
+            navigator.camera.getPicture(onSuccess, onFail, {
+              quality: 50,
+              destinationType: Camera.DestinationType.DATA_URL,
+            });
+
+            function onSuccess(imageData) {
+              var image = document.getElementById("previewImage");
+              image.src = "data:image/jpeg;base64," + imageData;
+              image.style.display = "block";
+              document.getElementById("libraryImage").value = imageData;
+            }
+
+            function onFail(message) {
+              alert("Failed because: " + message);
+            }
           });
-
-          function onSuccess(imageData) {
-            var image = document.getElementById('previewImage');
-            image.src = "data:image/jpeg;base64," + imageData;
-            imageToSave = imageData
-            image.style.display = "block";
-            document.getElementById('libraryImage').value = imageData;
-          }
-
-          function onFail(message) {
-            alert('Failed because: ' + message);
-          }
-        });
 
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function (position) {
-            $("#newLibraryForm").data('location', {
+            $("#newLibraryForm").data("location", {
               lat: position.coords.latitude,
-              long: position.coords.longitude
+              long: position.coords.longitude,
             });
           });
         }
@@ -314,64 +417,37 @@ class UI {
             e.preventDefault();
             const name = $("#text-2").val();
             const address = $("#text-4").val();
-            const imageName = "/img/" + Date.now() + ".png";
+            const imageName = "/img/placeholder.png";
             const libraryData = {
               name: name,
               address: address,
-              location: $("#newLibraryForm").data('location'),
-              coverURL: imageName
+              location: $("#newLibraryForm").data("location"),
+              coverURL: imageName,
             };
 
             try {
-              await postData(
-                `${baseURL}/api/libraries`,
-                libraryData
-              ).then(async (res) => {
-                saveImage(imageToSave, imageName)
-                onDeviceReady();
-              });
+              await postData(`${baseURL}/api/libraries`, libraryData).then(
+                async (res) => {
+                  // saveImage(imageToSave, imageName) //Feature to implement using storage bucket
+                  // Cleanup after adding new library
+                  $("#text-2").val(""); // Clear library name
+                  $("#text-4").val(""); // Clear library address
+                  $("#previewImage").attr("src", "").hide(); // Reset and hide image preview
+                  onDeviceReady();
+                }
+              );
               $.mobile.changePage("#library-list-page");
             } catch (error) {
-              console.error(error)
-              alertErrorMessage("Error", "There was an error adding the library");
+              console.error(error);
+              alertErrorMessage(
+                "Error",
+                "There was an error adding the library"
+              );
             }
           });
-
-          function getDirectory(dirEntry, dirName, callback) {
-            dirEntry.getDirectory(dirName, { create: true }, callback, onError);
-          }
-          
-          function saveImage(imageToSave, imageName) {
-            var imageFolder = cordova.file.dataDirectory;
-            console.log(imageFolder)
-            var byteCharacters = atob(imageToSave);
-            var byteNumbers = new Array(byteCharacters.length);
-            for (var i = 0; i < byteCharacters.length; i++) {
-              byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            var byteArray = new Uint8Array(byteNumbers);
-            var blob = new Blob([byteArray], { type: "image/png" });
-          
-            window.resolveLocalFileSystemURL(imageFolder, function(dirEntry) {
-              getDirectory(dirEntry, 'img', function(dir) {
-                console.log(dir)
-                dir.getFile(imageName, { create: true }, function(file) {
-                  file.createWriter(function(fileWriter) {
-                    fileWriter.write(blob);
-                  }, onError);
-                }, onError);
-              });
-            }, onError);
-          }
-          
-        function onError(error) {
-          alert("Failed to save image: " + error.code);
-        }
-
       }
     });
   }
-
 }
 
 class Data {
@@ -384,77 +460,8 @@ class Data {
   }
 }
 
-class Location {
-  static setUserLocation() {
-    var options = {
-      enableHighAccuracy: true,
-      maximumAge: 3600000
-    }
-    navigator.geolocation.getCurrentPosition(
-      this.onPositionRetrieved.bind(this),
-      this.onPositionError.bind(this), options
-    );
-  }
-
-  static onPositionRetrieved(position) {
-    const { latitude, longitude } = position.coords;
-    this.initMap(latitude, longitude);
-  }
-
-  static onPositionError(error) {
-    console.error("Error: ", error.message);
-    this.initMap(-27.4701, 153.0217); // Default location: Brisbane Square Library
-  }
-
-  static initMap(latitude, longitude) {
-    const icons = {
-      library: {
-        icon: "/img/library_maps.png",
-      },
-      userLocation: {
-        icon: "/img/blue-dot.png",
-      },
-    };
-
-    const map = new google.maps.Map(document.getElementById("map"), {
-      center: new google.maps.LatLng(latitude, longitude),
-      zoom: 10,
-    });
-
-    new google.maps.Marker({
-      position: new google.maps.LatLng(latitude, longitude),
-      icon: icons.userLocation.icon,
-      map: map,
-    });
-
-    for (const library of libs) {
-      const marker = new google.maps.Marker({
-        position: new google.maps.LatLng(
-          library.location.lat,
-          library.location.long
-        ),
-        icon: icons.library.icon,
-        map: map,
-      });
-
-      const googleMapsURL = `https://www.google.com/maps/search/?api=1&query=${library.location.lat},${library.location.long}`;
-
-      const infoWindow = new google.maps.InfoWindow({
-        content: `<div>
-        <a href="${googleMapsURL}" target="_blank">${library.name}</a>
-        <p>${library.address}</p>
-      </div>`,
-      });
-
-      marker.addListener("click", () => {
-        infoWindow.open(map, marker);
-      });
-    }
-  }
-}
-
 //Helper Functions
-window.initMap = function () { }; // The function is left blank as Google Maps requires it but it doesn't need to do anything
+window.initMap = function () {}; // The function is left blank as Google Maps requires it but it doesn't need to do anything
 async function postData(url, data) {
   try {
     const response = await $.ajax({
