@@ -117,20 +117,6 @@ app.get("/api/libraries", cors(), async (req, res) => {
   }
 });
 
-// DANGER DELETE ALL
-app.delete("/api/libraries", cors(), async (req, res) => {
-  try {
-    await Library.deleteMany({});
-    res.status(200).send({ msg: "All libraries deleted" });
-  } catch (error) {
-    console.error("Error deleting all libraries: ", error);
-    res.status(500).send({
-      msg: "Error deleting all libraries from MongoDB",
-      error: error.message,
-    });
-  }
-});
-
 // Run the server
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
